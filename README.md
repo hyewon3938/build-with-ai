@@ -12,6 +12,7 @@
 
 - [skills-overview.md](workflow/skills-overview.md) — `/design`·`/build`·`/init-project` 스킬의 단계 흐름을 Mermaid로 시각화. 세 스킬이 무엇을 입력받아 어떤 산출물을 남기는지 한눈에.
 - [design-build-skills.md](workflow/design-build-skills.md) — 사고가 휘발되지 않도록 5문서로 나눠 담는 아키텍처(plans · design-notebook · ADR · features · domains)와 스킬을 progressive disclosure로 쪼갠 이유.
+- [ai-agent-risk-patterns.md](workflow/ai-agent-risk-patterns.md) — AI 에이전트와 일할 때 직접 마주친 3가지 위험 패턴(trace/dump 노출, `reset --hard` 손실, force-push로 PR 자동 close)과 그 위에 세운 가드레일.
 
 ### 향후 확장 후보
 
