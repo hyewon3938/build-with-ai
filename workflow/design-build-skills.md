@@ -62,7 +62,7 @@ ADR(Architecture Decision Records)이 있긴 하다. 하지만 ADR은 결정만 
 
 ```
 design/
-├── SKILL.md                          # 짧게 (3872 bytes) — 흐름 + 단계별 1~2줄
+├── SKILL.md                          # 흐름 + 단계별 1~2줄 (현재 ~11.8KB, 세부는 references/templates)
 ├── references/                       # 단계별 판단 기준
 │   ├── scale-judgment.md             # 소규모/중규모 판단
 │   ├── adr-criteria.md               # ADR 작성 기준 + Michael Nygard 포맷
@@ -72,23 +72,36 @@ design/
     └── design-notebook-section.md    # design-notebook phase 섹션 포맷
 ```
 
-스킬이 호출되면 `SKILL.md`만 자동 로드. 단계 진행 중 필요한 보조 파일만 그때그때 추가로 읽는다. 예를 들어 5-2 단계에서 design-notebook 갱신을 결정할 때만 `templates/design-notebook-section.md`를 로드한다.
+스킬이 호출되면 `SKILL.md`만 자동 로드. 단계 진행 중 필요한 보조 파일만 그때그때 추가로 읽는다. 예를 들어 8단계에서 design-notebook 갱신을 결정할 때만 `templates/design-notebook-section.md`를 로드한다.
 
 ### 결과
 
-| 항목 | Before | After |
+| 항목 | Before | After (개편 직후) |
 |------|--------|-------|
 | 스킬 호출 시 로드되는 SKILL.md | 5436 bytes | 3872 bytes (~29% ↓) |
 | 보조 파일 | 0 | 5개 (참조 시에만 로드) |
 | 신규 단계 추가 방식 | SKILL.md에 통째로 append | SKILL.md엔 한 줄, 세부는 references/templates에 |
 
-스킬 호출 시 매번 들어오는 컨텍스트가 줄어들고, 세부 가이드는 필요할 때만 읽힌다. 새 단계를 붙일 때도 흐름 문서를 짧게 유지하기 쉬워졌다.
+스킬 호출 시 매번 들어오는 컨텍스트가 줄어들고, 세부 가이드는 필요할 때만 읽힌다. 새 단계를 붙일 때도 흐름 문서를 짧게 유지하기 쉬워졌다. (개편 뒤로도 단계가 계속 붙어 SKILL.md는 현재 \~11.8KB까지 자랐지만, 세부를 references/templates에 두는 원칙이 유지돼 매 호출 로드는 통제된다.)
 
 ### 새로 붙은 단계
 
-- **5-2**: design-notebook 작성 여부 판단. 마스터 단위 첫 진입이거나 새 Phase 시작이면 design-notebook 섹션 갱신.
-- **6-1**: 인터뷰 사고 추출. 의사결정 분기점·포기·회고를 자동 식별 (고정 개수 아니라 기준 기반).
-- **6-2**: design-drafts 트리거. 구현 직전 "솔직 회고나 비공개로 남길 거 있어?" 질문 — 비공개 노트 저장 옵션.
+- **8**: design-notebook 작성 여부 판단. 마스터 단위 첫 진입이거나 새 Phase 시작이면 design-notebook 섹션 갱신.
+- **10**: 인터뷰 사고 추출. 의사결정 분기점·포기·회고를 자동 식별 (고정 개수 아니라 기준 기반).
+- **12**: design-drafts 트리거. 구현 직전 "솔직 회고나 비공개로 남길 거 있어?" 질문 — 비공개 노트 저장 옵션.
+
+### 2026-05-26 portfolio 후보 제안 단계에 추천 평가 동봉 (lessons learned)
+
+phase 마무리에 Claude가 portfolio-candidates 후보를 1\~3개 자동 제안하는 단계는 진작 들어가 있었다. 그런데 4개 후보를 나열만 하니까 사용자가 매번 처음 보는 사람처럼 모든 옵션을 같은 무게로 검토해야 했다. AI가 "선택지를 만든다"까지만 하고 "어떤 게 더 어필되는지"는 인간이 다시 처음부터 고민하는 구조.
+
+피드백을 받고 두 규칙을 추가:
+
+1. **추천 평가 동봉 (필수)**: 후보 나열만 하지 말고 각 후보에 **추천/비추천 + 근거**를 같이 제시. 판단 기준은 ① 일반화 가치 ② 비자명성 ③ 원천 안정성(ADR/design-notebook 등 link 가능한 원천 명확) ④ 단발 vs 누적. 2개 이상이면 추천.
+2. **"없으면 없다고 말한다"**: phase 산출물에서 진짜 어필 후보가 안 보이면 억지로 만들지 않고 "이번 phase는 portfolio 어필 후보 없음 (사유: ...)" 보고. 가짜 후보 누적은 portfolio-candidates 신호를 죽인다.
+
+배경 통찰은 AI 협업 일반의 패턴이다: **AI가 선택지를 만드는 단계와 추천하는 단계는 다르다**. 선택지만 제공하면 인간이 추천 작업을 처음부터 다시 하는 셈이 된다. AI에게 선택지+추천+근거까지 같이 받아두면 인간은 "추천 동의/거부"만 결정하면 되니까 검토 비용이 한 자릿수 percent로 떨어진다. "AI가 옵션을 제시할 때는 추천도 같이"는 portfolio 후보 외 다른 의사결정 인터페이스에도 일반화 가능한 디자인 원칙으로 운영.
+
+설계 사항을 `/design` 스킬 11-1·11-2 sub-section + project_portfolio_appeal_workflow 메모리에 명문화.
 
 ## 비공개 드래프트 — design-drafts
 
@@ -99,6 +112,18 @@ design/
 - 트리거: `/design` 마지막 단계에서 "비공개로 남길 거 있어?" 명시적 질문.
 
 design-notebook이 정리된 서사라면, design-drafts는 그 이전 단계의 raw 메모에 가깝다.
+
+### 2026-07-12 산출물 실측 감사 기반 개선 (lessons learned)
+
+스킬이 약속한 문서 갱신이 실제로 일어났는지, 한 프로젝트의 산출물(git 히스토리·plans·features)을 스킬 약속과 대조하는 실측 감사를 했다. 세 군데가 어긋나 있었다:
+
+- **project-history 정체** — 5주 넘게 갱신이 멎어 마일스톤 여러 개가 기록에서 빠졌다.
+- **plans "휘발" 미작동** — close된 계획서 50여 개가 라이브 디렉터리에 방치됐다. 아카이브를 담당하는 단계가 아예 없었다.
+- **features.md 누락** — 새 기능군이 통째로 카탈로그에 안 올라갔다. 갱신 단계 자체가 없었다.
+
+셋의 공통 원인은 하나다. **owner가 표에 문장으로만 적혀 있으면 문서는 멈춘다** — 갱신을 실제로 굴리려면 실행 단계·트리거·회수 경로까지 스킬 흐름에 박혀 있어야 한다. 2026-05-17 owner 명시가 "누가"를 정한 거였다면, 이번엔 "언제 어느 단계에서"를 박았다.
+
+고친 방식: `/build`에 **features.md 갱신 단계**(3-4)와 **머지 후 마무리 단계**(10, 계획서 `_archive/` 이동 + project-history 재점검)를 신설하고, `/design`의 마스터 cross-check에 **직전 phase 기록 누락 회수** 항목을 넣어 스킬 밖에서 close된 작업의 누락을 다음 진입 때 주워 오게 했다. 상세는 [skill-audit-2026-07.md](skill-audit-2026-07.md).
 
 ## 메타 — 이 글을 어디 둘 것인가
 

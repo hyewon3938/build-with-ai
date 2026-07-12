@@ -13,6 +13,9 @@
 - [skills-overview.md](workflow/skills-overview.md) — `/design`·`/build`·`/init-project` 스킬의 단계 흐름을 Mermaid로 시각화. 세 스킬이 무엇을 입력받아 어떤 산출물을 남기는지 한눈에.
 - [design-build-skills.md](workflow/design-build-skills.md) — 사고가 휘발되지 않도록 5문서로 나눠 담는 아키텍처(plans · design-notebook · ADR · features · domains)와 스킬을 progressive disclosure로 쪼갠 이유.
 - [ai-agent-risk-patterns.md](workflow/ai-agent-risk-patterns.md) — AI 에이전트와 일할 때 직접 마주친 3가지 위험 패턴(trace/dump 노출, `reset --hard` 손실, force-push로 PR 자동 close)과 그 위에 세운 가드레일.
+- [charters-as-shared-vocabulary.md](workflow/charters-as-shared-vocabulary.md) — 명시된 설계 헌장이 단방향(AI 일관성) 장치가 아니라 양방향(사용자 조향) 도구라는 것. 사용자가 원칙으로 AI를 교정할 때 AI는 포기가 아니라 화해로 답해야 한다.
+- [multi-agent-orchestration.md](workflow/multi-agent-orchestration.md) — 상위 모델에서 관찰한 오케스트레이션 습관 5가지를 3층 설정(전역 정책 · 커스텀 에이전트 · 스킬)으로 이식한 기록. 행동은 이식되고 판단은 이식되지 않는다.
+- [skill-audit-2026-07.md](workflow/skill-audit-2026-07.md) — 스킬이 약속한 산출물을 실측해 워크플로우의 구멍 3개를 찾아 고친 기록. owner가 표에만 있는 문서는 갱신이 멈춘다 — 역할 선언을 실행 단계로 승격.
 
 ### 향후 확장 후보
 
