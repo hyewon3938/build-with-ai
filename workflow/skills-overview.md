@@ -2,13 +2,13 @@
 
 Claude Code 기반 개인 작업에서 가장 자주 쓰는 세 스킬의 단계 흐름을 다이어그램으로 정리한 문서. 각 스킬이 무엇을 입력으로 받아 어떤 산출물을 남기는지 한눈에 보기 위해 만들었다.
 
-세 스킬의 상세 단계 정의는 글로벌 스킬 파일에 있다:
+세 스킬의 원본은 이 repo의 [`plugin/skills/`](../plugin/)에 있고, `~/.claude/skills/`는 그 심링크다 (bare 이름 유지 + git 버전 관리):
 
-- `/design` → `~/.claude/skills/design/SKILL.md`
-- `/build` → `~/.claude/skills/build/SKILL.md`
-- `/init-project` → `~/.claude/skills/init-project/SKILL.md`
+- `/design` → `plugin/skills/design/SKILL.md`
+- `/build` → `plugin/skills/build/SKILL.md`
+- `/init-project` → `plugin/skills/init-project/SKILL.md`
 
-설계 사상(왜 이렇게 나눴는지, 5문서 아키텍처, progressive disclosure)은 [design-build-skills.md](design-build-skills.md)에 따로 정리.
+설계 사상(왜 이렇게 나눴는지, 5문서 아키텍처, progressive disclosure)은 [design-build-skills.md](design-build-skills.md)에, 로드 층·훅·`/goal` 게이트까지 포함한 전체 배선도는 [system-map.md](system-map.md)에 따로 정리.
 
 ## 세 스킬의 관계
 

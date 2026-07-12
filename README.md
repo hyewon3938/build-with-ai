@@ -10,6 +10,7 @@
 
 특정 프로젝트가 아닌 "작업 방식 자체"에 적용되는 흐름·아키텍처·도구.
 
+- [system-map.md](workflow/system-map.md) — **시스템 전도**: 무엇이 언제 로드되고(상주·호출 시·스폰 시), 어디서 강제되고(문장<단계<훅), 사람은 어디서만 개입하는가. 전체 배선도는 이 글부터.
 - [skills-overview.md](workflow/skills-overview.md) — `/design`·`/build`·`/init-project` 스킬의 단계 흐름을 Mermaid로 시각화. 세 스킬이 무엇을 입력받아 어떤 산출물을 남기는지 한눈에.
 - [design-build-skills.md](workflow/design-build-skills.md) — 사고가 휘발되지 않도록 5문서로 나눠 담는 아키텍처(plans · design-notebook · ADR · features · domains)와 스킬을 progressive disclosure로 쪼갠 이유.
 - [ai-agent-risk-patterns.md](workflow/ai-agent-risk-patterns.md) — AI 에이전트와 일할 때 직접 마주친 3가지 위험 패턴(trace/dump 노출, `reset --hard` 손실, force-push로 PR 자동 close)과 그 위에 세운 가드레일.
@@ -20,6 +21,17 @@
 ### 향후 확장 후보
 
 `tools/`(직접 만든 스킬·훅), `decisions/`(작업 방식 ADR), `experiments/`(시도해본 패턴), `retros/`(회고) 등 — 자산이 충분히 쌓이면 분리.
+
+## 플러그인으로 설치
+
+`workflow/`가 설명하는 시스템의 실물이 [`plugin/`](plugin/)에 Claude Code 플러그인으로 들어 있다 — 스킬 5종(설계·구현·초기 세팅·리뷰·오케스트레이션) + 에이전트 3종(scout·worker·verifier) + 보안 가드 훅 2종:
+
+```
+/plugin marketplace add hyewon3938/build-with-ai
+/plugin install build-with-ai@build-with-ai
+```
+
+구성과 사용법은 [plugin/README.md](plugin/README.md) 참조.
 
 ## 적용 사례
 
