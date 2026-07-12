@@ -1,0 +1,11 @@
+{
+  "name": "build-with-ai",
+  "description": "설계(/design)→구현(/build) 워크플로우 스킬 5종 + 오케스트레이션 에이전트 3종 + 보안 가드 훅 — 5문서 아키텍처 기반 1인 개발 AI 협업 시스템",
+  "version": "1.0.0",
+  "author": {
+    "name": "hyewon3938",
+    "url": "https://github.com/hyewon3938"
+  },
+  "homepage": "https://github.com/hyewon3938/build-with-ai",
+  "repository": "https://github.com/hyewon3938/build-with-ai"
+}

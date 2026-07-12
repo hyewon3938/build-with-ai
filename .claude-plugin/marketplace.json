@@ -1,0 +1,15 @@
+{
+  "name": "build-with-ai",
+  "description": "1인 개발 AI 협업 시스템 — 설계→구현 워크플로우 스킬, 오케스트레이션 에이전트, 보안 가드 훅",
+  "owner": {
+    "name": "hyewon3938",
+    "url": "https://github.com/hyewon3938"
+  },
+  "plugins": [
+    {
+      "name": "build-with-ai",
+      "source": "./plugin",
+      "description": "설계→구현 워크플로우 스킬(/design·/build·/init-project·/review-code·/orchestrate), scout/worker/verifier 에이전트, secrets·파괴 명령 가드 훅"
+    }
+  ]
+}

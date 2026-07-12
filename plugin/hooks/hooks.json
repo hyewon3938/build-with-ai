@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guard-secrets.mjs"],
+            "timeout": 10,
+            "statusMessage": "secrets 가드"
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guard-destructive.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "파괴 명령 가드"
+          }
+        ]
+      }
+    ]
+  }
+}
