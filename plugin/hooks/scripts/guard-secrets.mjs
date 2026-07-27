@@ -44,9 +44,16 @@ const RULES = [
     msg: "eval $(cat .env) 패턴 금지 — 전체 값이 셸 히스토리·로그에 노출된다.",
   },
   {
-    test: (c) =>
-      /(^|[\s;&|()`])(cat|head|tail|less|more|bat|strings)\s/.test(c) &&
-      ENV_REF.test(scrubbed),
+    // 파이프라인 구간 단위로 판정 — 덤프 명령과 .env 참조가 같은 구간에 있을 때만 차단.
+    // (cat settings.json | jq '.env' 처럼 jq 필터의 .env 필드 참조가 다른 구간에 있는 정당한 명령은 통과)
+    test: () =>
+      scrubbed
+        .split(/[|;&\n]+/)
+        .some(
+          (seg) =>
+            /(^|[\s;&|()`])(cat|head|tail|less|more|bat|strings)\s/.test(seg) &&
+            ENV_REF.test(seg),
+        ),
     msg: ".env 계열 파일 덤프 금지 (경로 포함 변형 감지). 특정 변수: grep '^KEY=' — 존재 확인: grep -c '^KEY=' <파일>",
   },
 ];

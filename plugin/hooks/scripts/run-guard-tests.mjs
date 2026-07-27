@@ -22,6 +22,9 @@ const CASES = {
       "cat /srv/app/.env",
       "tail -n5 ../.env.production",
       "set -x; ./run.sh",
+      // 구간 판정 도입 후에도 같은 구간의 덤프+참조는 계속 차단되는지 확인
+      "cat .env | grep KEY",
+      "head -2 ./prod/.env.local && echo done",
     ],
     allow: [
       "cat .env.example",
@@ -30,6 +33,10 @@ const CASES = {
       "yarn test",
       "npx tsc --noEmit",
       "git log --oneline",
+      // 2026-07-27 실증 오탐: jq 필터의 .env 필드 참조가 파이프라인의 다른 구간에 있는 경우
+      "cat ~/.claude/settings.json | jq '.env'",
+      "cat settings.json | jq '.env | keys'",
+      "head -c 200000 session.jsonl | jq -r '.env.CLAUDE_CODE_EFFORT_LEVEL // empty'",
     ],
   },
   "guard-destructive.mjs": {
