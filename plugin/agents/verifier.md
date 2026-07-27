@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: 적대적 검증 에이전트. 중요한 발견·원인 분석·"이 변경은 안전하다"류 결론을 채택하거나 사용자에게 보고하기 전에 반드시(MUST BE USED) 사용해 반박을 시도. 주장 하나당 verifier 하나씩, 여러 주장이면 병렬 실행.
+description: 적대적 검증 에이전트. 보안·비가역 작업·프로덕션 영향·사용자 최종 보고의 핵심 주장을 채택하기 전에 사용해 반박을 시도. 일상적 결론은 지휘 에이전트의 self-check로 충분. 주장 하나당 verifier 하나씩, 여러 주장이면 병렬 실행.
 tools: Read, Grep, Glob, Bash
 model: inherit
 ---
