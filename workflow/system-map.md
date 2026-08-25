@@ -45,6 +45,12 @@ build-with-ai/                          ← git 원본 (이 repo)
 
 교체 자체는 되돌릴 수 없으니 순서가 있다: 원본 백업 → 백업이 실물과 바이트 단위로 같은지 확인(shasum) → 심링크 교체 → 소비처에서 실제로 새 내용이 읽히는지 확인. 3번만 하고 4번을 건너뛰면 "링크는 걸렸는데 앱은 캐시된 옛 사본을 읽는" 상태를 못 잡는다.
 
+### 세 번째 적용처 — 글로벌 설정 문서 (2026-08)
+
+전역 `CLAUDE.md`와 `orchestration.md`, `settings.json`도 같은 구조로 옮겼다. 이 셋은 개인 환경 경로와 사적인 맥락이 섞여 있어 public인 이 repo에 둘 수 없어서, 원본은 별도 private repo(`claude-config`)에 두고 `~/.claude/` 쪽을 파일 단위 심링크로 붙였다. 이 문서에서 `~/.claude/CLAUDE.md`나 `~/.claude/settings.json`을 가리키는 대목은 모두 그 private repo의 파일을 읽는 경로다.
+
+settings.json에는 주의가 하나 더 붙는다. Claude Code가 테마·모델 변경, 권한 always allow, 플러그인 토글로 이 파일에 직접 쓰기 때문에 저장 방식에 따라 심링크가 일반 파일로 바뀔 수 있고, 그러면 그 뒤의 변경분이 버전 관리에서 빠진다. 링크가 살아 있는지 `ls -l ~/.claude/settings.json`으로 가끔 확인한다.
+
 ## 2. 무엇이 언제 로드되나 — 컨텍스트 예산 지도
 
 | 층 | 로드 시점 | 내용 | 토큰 비용 |
