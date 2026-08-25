@@ -49,7 +49,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 
 전역 `CLAUDE.md`와 `orchestration.md`, `settings.json`도 같은 구조로 옮겼다. 이 셋은 개인 환경 경로와 사적인 맥락이 섞여 있어 public인 이 repo에 둘 수 없어서, 원본은 별도 private repo(`claude-config`)에 두고 `~/.claude/` 쪽을 파일 단위 심링크로 붙였다. 이 문서에서 `~/.claude/CLAUDE.md`나 `~/.claude/settings.json`을 가리키는 대목은 모두 그 private repo의 파일을 읽는 경로다.
 
-settings.json에는 주의가 하나 더 붙는다. Claude Code가 테마·모델 변경, 권한 always allow, 플러그인 토글로 이 파일에 직접 쓰기 때문에 저장 방식에 따라 심링크가 일반 파일로 바뀔 수 있고, 그러면 그 뒤의 변경분이 버전 관리에서 빠진다. 링크가 살아 있는지 `ls -l ~/.claude/settings.json`으로 가끔 확인한다.
+settings.json에는 주의가 하나 더 붙는다. Claude Code가 테마·모델 변경, 권한 always allow, 플러그인 토글로 이 파일에 직접 쓰기 때문에 저장 방식에 따라 심링크가 일반 파일로 바뀔 수 있고, 그러면 그 뒤의 변경분이 버전 관리에서 빠진다. 그래서 세션이 시작될 때 링크 상태를 확인하는 훅을 그 private repo에 두고 settings.json의 SessionStart에 걸어 두었다. 끊긴 파일이 있을 때만 알리고, 복구도 같은 스크립트의 `--fix`가 맡는다.
 
 ## 2. 무엇이 언제 로드되나 — 컨텍스트 예산 지도
 
