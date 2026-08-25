@@ -21,7 +21,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 ├── .claude-plugin/marketplace.json     ← 외부 설치용 카탈로그
 ├── plugin/
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/{design,build,init-project,review-code,orchestrate}/
+│   ├── skills/{design,build,init-project,review-code,orchestrate,writing}/
 │   ├── agents/{scout,worker,verifier}.md
 │   └── hooks/
 │       ├── hooks.json                  ← 플러그인 설치자용 훅 등록
