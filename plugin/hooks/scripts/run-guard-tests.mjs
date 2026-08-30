@@ -4,6 +4,8 @@
 // 활성화된 가드 훅이 테스트 명령 자체를 차단한다.
 // 우회 케이스 11건(개행·래퍼 접두·-C·플래그 후치·대문자)은 적대적 검증에서 실증된 것 — 제거 금지.
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -78,6 +80,69 @@ const CASES = {
   },
 };
 
+// 파일 크기 가드는 명령 문자열만으로 판정할 수 없다 — 이번 커밋에 실리는 파일과 그 크기를
+// 함께 보므로 임시 git 저장소를 만들어 확인한다.
+function docSizeCases() {
+  const repo = mkdtempSync(join(tmpdir(), "guard-doc-size-"));
+  const bare = mkdtempSync(join(tmpdir(), "guard-doc-size-nogit-"));
+  const git = (...args) =>
+    spawnSync("git", ["-C", repo, ...args], { encoding: "utf8" });
+  git("init", "-q");
+  git("config", "user.email", "t@example.com");
+  git("config", "user.name", "t");
+  git("config", "commit.gpgsign", "false");
+  const write = (n) =>
+    writeFileSync(join(repo, "CLAUDE.md"), "가".repeat(n), "utf8");
+  const hook = (command, cwd = repo) =>
+    spawnSync("node", [join(here, "guard-doc-size.mjs")], {
+      input: JSON.stringify({ tool_name: "Bash", cwd, tool_input: { command } }),
+      encoding: "utf8",
+    }).status;
+  const commit = 'git commit -m "docs: 상태 절 기록"';
+  const out = [];
+
+  write(100);
+  git("add", "CLAUDE.md");
+  git("commit", "-qm", "init");
+
+  write(20001);
+  git("add", "CLAUDE.md");
+  out.push(["상한 초과 + 스테이지됨", hook(commit), 2]);
+  out.push(["커밋이 아닌 명령", hook("git status --short"), 0]);
+  out.push(["래퍼 접두 + 개행", hook('echo x\nsudo git commit -m "x"'), 2]);
+  out.push(["git -C 뒤 commit", hook("git -C . commit -m x"), 2]);
+
+  write(19999);
+  git("add", "CLAUDE.md");
+  out.push(["상한 이하", hook(commit), 0]);
+
+  // 초과이지만 이번 커밋에 안 실리는 경우
+  git("reset", "-q");
+  write(20001);
+  writeFileSync(join(repo, "other.ts"), "x", "utf8");
+  git("add", "other.ts");
+  out.push(["초과이나 다른 파일만 스테이지", hook(commit), 0]);
+  out.push(["-am 은 추적 중 변경분까지", hook('git commit -am "x"'), 2]);
+
+  // 프로젝트가 상한을 다시 정한 경우
+  mkdirSync(join(repo, ".claude"), { recursive: true });
+  writeFileSync(
+    join(repo, ".claude/doc-size.json"),
+    JSON.stringify({ "CLAUDE.md": 30000 }),
+    "utf8",
+  );
+  git("add", "CLAUDE.md");
+  out.push(["설정으로 상한 상향", hook(commit), 0]);
+  writeFileSync(join(repo, ".claude/doc-size.json"), "{ 깨진 json", "utf8");
+  out.push(["설정이 깨졌으면 기본 상한", hook(commit), 2]);
+
+  out.push(["git 저장소 밖", hook(commit, bare), 0]);
+
+  rmSync(repo, { recursive: true, force: true });
+  rmSync(bare, { recursive: true, force: true });
+  return out;
+}
+
 let pass = 0;
 let fail = 0;
 for (const [script, { block, allow }] of Object.entries(CASES)) {
@@ -99,6 +164,14 @@ for (const [script, { block, allow }] of Object.entries(CASES)) {
         );
       }
     }
+  }
+}
+for (const [name, got, want] of docSizeCases()) {
+  if (got === want) {
+    pass++;
+  } else {
+    fail++;
+    console.error(`MISS [guard-doc-size.mjs] want=${want} got=${got} :: ${name}`);
   }
 }
 console.log(`${fail === 0 ? "PASS" : "FAIL"} — ${pass} ok / ${fail} miss`);
