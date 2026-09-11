@@ -18,6 +18,7 @@
 - [multi-agent-orchestration.md](workflow/multi-agent-orchestration.md) — 상위 모델에서 관찰한 오케스트레이션 습관 5가지를 3층 설정(전역 정책 · 커스텀 에이전트 · 스킬)으로 이식한 기록. 행동은 이식되고 판단은 이식되지 않는다.
 - [skill-audit-2026-07.md](workflow/skill-audit-2026-07.md) — 스킬이 약속한 산출물을 실측해 워크플로우의 구멍 3개를 찾아 고친 기록. owner가 표에만 있는 문서는 갱신이 멈춘다 — 역할 선언을 실행 단계로 승격.
 - [de-ai-writing-patterns.md](workflow/de-ai-writing-patterns.md) — AI와 쓴 한국어 문서에서 반복되는 AI 문체·번역투 패턴 카탈로그. 문체 피드백을 트랜스크립트에서 추출해 스킬로 바꿔, 같은 지적을 초안 단계에서 걸러낸 방법.
+- [instruction-sheet-vs-watch-ledger.md](workflow/instruction-sheet-vs-watch-ledger.md) — 세션마다 통째로 읽히는 지시서와 배포 뒤 확인할 것을 쌓는 장부를 가르는 기준. 크기 상한은 부피를 막지만 무엇을 뺄지는 안 알려준다.
 
 ### 향후 확장 후보
 
