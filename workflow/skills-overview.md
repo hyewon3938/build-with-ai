@@ -8,7 +8,7 @@ Claude Code 기반 개인 작업에서 가장 자주 쓰는 세 스킬의 단계
 - `/build` → `plugin/skills/build/SKILL.md`
 - `/init-project` → `plugin/skills/init-project/SKILL.md`
 
-설계 사상(왜 이렇게 나눴는지, 5문서 아키텍처, progressive disclosure)은 [design-build-skills.md](design-build-skills.md)에, 로드 층·훅·`/goal` 게이트까지 포함한 전체 배선도는 [system-map.md](system-map.md)에 따로 정리.
+설계 사상(왜 이렇게 나눴는지, 5문서 아키텍처, progressive disclosure)은 [design-build-skills.md](design-build-skills.md)에, 로드 시점·훅·`/goal` 게이트까지 포함한 전체 구성은 [system-map.md](system-map.md)에 따로 정리.
 
 ## 세 스킬의 관계
 
