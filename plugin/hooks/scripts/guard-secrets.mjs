@@ -3,6 +3,12 @@
 // 기존 settings.json 인라인 훅의 패턴을 1:1 이식 + 경로 변형 .env 덤프 탐지 보강.
 // exit 2 = 차단 (stderr가 모델에게 전달), exit 0 = 통과. 파싱 실패 시 방해하지 않는다.
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+// 변수 존재만 알려 주는 스크립트. 차단 안내에 절대 경로로 넣는다.
+const ENV_HAS = fileURLToPath(
+  new URL("../../scripts/env-has.mjs", import.meta.url),
+);
 
 let input;
 try {
@@ -54,7 +60,7 @@ const RULES = [
             /(^|[\s;&|()`])(cat|head|tail|less|more|bat|strings)\s/.test(seg) &&
             ENV_REF.test(seg),
         ),
-    msg: ".env 계열 파일 덤프 금지 (경로 포함 변형 감지). 특정 변수: grep '^KEY=' — 존재 확인: grep -c '^KEY=' <파일>",
+    msg: `.env 계열 파일 덤프 금지 (경로 포함 변형 감지). 특정 변수: grep '^KEY=' — 존재 확인: node ${ENV_HAS} KEY [--file <파일>] (있음·없음만 출력)`,
   },
 ];
 

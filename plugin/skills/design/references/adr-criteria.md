@@ -23,12 +23,12 @@
 
 ## 작업 절차
 
-1. 다음 번호 결정:
+1. `/design`은 설계 문서의 결정 절에 ADR 대상이라고 적고 Context, Decision, Alternatives, Consequences 초안을 함께 둔다.
+2. `/design`은 그 결정을 구현하는 세션의 이슈 본문과 대기열 행에 ADR 작성을 할 일로 넣는다. 번호는 여기서 정하지 않는다.
+3. `/build`는 ADR 파일을 만들 때 다음 번호를 정하고, 파일 `docs/adr/NNNN-<kebab-case-제목>.md`를 같은 PR에 넣는다.
    ```bash
    ls docs/adr/ | grep -E '^[0-9]{4}-' | tail -1
    ```
-2. 계획서의 "변경 파일 목록"에 `docs/adr/NNNN-<kebab-case-제목>.md` 포함
-3. 계획서에 **"ADR 작성"** 별도 섹션 추가 (Context / Decision / Alternatives / Consequences 초안)
 
 ## ADR 포맷 (Michael Nygard)
 
