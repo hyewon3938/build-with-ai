@@ -2,31 +2,40 @@
 
 ## worktree와 브랜치 정리
 
-`/build`는 사용자만 부르는 스킬이고 정리까지가 요청 범위라서, 이 단계에서 worktree를 나와 지운다.
+`/build`는 사용자만 부르는 스킬이고 정리까지가 요청 범위라서, 이 단계에서 worktree를 나와 지운다. 세션이 worktree 안에서 돌고 있으면 메인 체크아웃을 가리키는 `git -C <메인>` 명령이 격리 검사에 막히므로, 먼저 worktree를 나온 뒤 메인 체크아웃에서 나머지를 한다. 막혔다고 정리를 사용자에게 넘기지 않는다.
 
-1. 메인 체크아웃의 base 브랜치를 최신으로 맞춘다. 메인 체크아웃이 base 브랜치에 있으면 `git -C <메인> pull --ff-only`를, 다른 브랜치에 있으면 `git -C <메인> fetch origin <base>:<base>`를 쓴다.
-2. EnterWorktree로 들어온 세션이면 ExitWorktree에 `keep`을 주고 원래 디렉터리로 돌아온다. `path`로 들어온 worktree는 ExitWorktree가 지우지 못하므로, 지우는 일은 어느 경우든 다음 단계의 git 명령으로 한다.
-3. worktree와 로컬 브랜치를 지운다.
+1. 이 세션이 쓰던 worktree를 지운다.
+
+   - EnterWorktree로 만든 worktree면 ExitWorktree에 `remove`를 준다. 커밋이 남아 있다고 거부하면 브랜치 끝 커밋이 원격 base에 들어갔는지 `git branch --contains <커밋> -r`로 확인하고, `origin/<base>`가 나오면 지워도 잃는 작업이 없다고 한 줄 알린 뒤 `discard_changes: true`로 다시 부른다. 원격에 없는 커밋이 있으면 멈추고 사용자에게 묻는다.
+   - ExitWorktree는 자기가 만든 이름의 브랜치를 지우므로, 브랜치 이름을 프로젝트 규칙으로 바꿨으면 그 브랜치가 남는다. 4단계에서 확인해 지운다.
+   - `path`로 들어왔거나 EnterWorktree를 안 쓴 worktree는 ExitWorktree가 지우지 못한다. `keep`으로 나온 뒤 2단계의 git 명령으로 지우고, 나올 수 없으면 5단계로 간다.
+
+2. 메인 체크아웃으로 돌아오면 base 브랜치를 최신으로 맞추고 남은 것을 지운다. 메인 체크아웃이 base 브랜치에 있으면 `git pull --ff-only`를, 다른 브랜치에 있으면 `git fetch origin <base>:<base>`를 쓴다.
 
    ```bash
-   git -C <메인> worktree remove <worktree 경로>
-   git -C <메인> branch -d <브랜치>
+   git pull --ff-only
+   git worktree remove <worktree 경로>
+   git branch -d <브랜치>
    ```
 
    - 링크한 문서는 링크만 지워지고 메인 체크아웃의 원본은 남는다.
    - `worktree remove`가 수정되거나 추적 안 된 파일이 있다고 거부하면 `git -C <worktree 경로> status --short`로 남은 것을 보고하고, 사용자가 허락할 때만 `--force`를 붙인다.
-   - `worktree remove`가 잠긴 worktree라고 거부하면 `git -C <메인> worktree list --porcelain`에서 그 worktree의 `locked` 줄을 본다. 사유가 `claude session <이름>`이면 Claude Code 세션이 그 worktree를 잠가 둔 것이다. 이름이 이 세션이 EnterWorktree에 준 이름과 같으면 `git -C <메인> worktree unlock <worktree 경로>` 뒤에 다시 지운다. 이름이 다르면 그 세션이 아직 쓰고 있을 수 있으므로 사유를 보고하고 지우는 일은 사용자에게 맡긴다.
+   - `worktree remove`가 잠긴 worktree라고 거부하면 `git worktree list --porcelain`에서 그 worktree의 `locked` 줄을 본다. 사유가 `claude session <이름>`이면 Claude Code 세션이 그 worktree를 잠가 둔 것이다. 이름이 이 세션이 EnterWorktree에 준 이름과 같으면 `git worktree unlock <worktree 경로>` 뒤에 다시 지운다. 이름이 다르면 그 세션이 아직 쓰고 있을 수 있으므로 사유를 보고하고 지우는 일은 사용자에게 맡긴다.
    - `branch -d`가 머지되지 않은 브랜치라고 거부하면 squash나 rebase로 머지한 경우다. `gh pr view <N> --json state`로 MERGED를 확인하고 영향 범위를 한 줄 알린 뒤 `-D`로 지운다.
-4. 세션이 처음부터 worktree 안에서 시작해 작업 디렉터리가 그 worktree이거나, `git -C <메인>` 명령이 권한 확인에서 거부돼 돌지 않으면 3단계를 이 세션에서 끝낼 수 없다. 남은 명령을 완료 보고에 적고, 사용자가 세션을 닫은 뒤 지우게 한다.
-5. 남은 것을 확인한다.
+
+3. 앞 세션이 남기고 간 worktree도 함께 지운다. `git worktree list`에 메인 체크아웃 말고 다른 항목이 있으면 그 브랜치가 `git branch --merged origin/<base>`에 나오는지 보고, 머지됐고 `locked` 줄이 없으면 2단계와 같은 명령으로 지운다. 잠긴 worktree는 다른 세션이 쓰는 중일 수 있으므로 보고만 한다.
+
+4. 남은 것을 확인한다.
 
    ```bash
-   git -C <메인> worktree list
-   git -C <메인> branch --list <브랜치>
+   git worktree list
+   git branch --list <브랜치>
    git ls-remote --heads origin <브랜치>
    ```
 
-   로컬 브랜치가 남았으면 `git -C <메인> branch -d <브랜치>`로 지운다. 원격 브랜치가 남았으면 저장소가 머지된 브랜치를 자동으로 지우지 않는 설정이라 `git -C <메인> push origin --delete <브랜치>`로 지운다.
+   로컬 브랜치가 남았으면 `git branch -d <브랜치>`로 지운다. 원격 브랜치가 남았으면 저장소가 머지된 브랜치를 자동으로 지우지 않는 설정이라 `git push origin --delete <브랜치>`로 지운다.
+
+5. worktree를 나올 수 없어 위 단계를 이 세션에서 끝내지 못하면 남은 명령을 완료 보고에 적고, 사용자가 세션을 닫은 뒤 지우게 한다. worktree 안에서도 `-C` 없이 도는 `git worktree remove <다른 worktree 경로>`와 `git branch -d <브랜치>`는 그대로 쓸 수 있으므로, 다른 worktree와 로컬 브랜치를 지우는 일은 나오기 전에 해도 된다.
 
 ## 대기열
 
