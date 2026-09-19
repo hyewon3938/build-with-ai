@@ -47,7 +47,7 @@ $ARGUMENTS
 | 프로젝트 성격 | 문서 세트 |
 |------|------|
 | 실험·일회성 (수명 몇 주) | 최소 세트: `CLAUDE.md` + `docs/conventions.md` |
-| 지속 개발 (기능 누적, 수개월+) | 5-doc 전체: + `docs/features.md`, `docs/design-notebook/`, `docs/adr/`, `docs/project-history.md` |
+| 지속 개발 (기능 누적, 수개월+) | 전체: + `LOCAL-SESSIONS.md`, `docs/features.md`, `docs/design-notebook/`, `docs/adr/`, `docs/project-history.md` |
 | 도메인 분리가 뚜렷 (여러 하위 도메인) | + `docs/domains/<domain>.md` |
 
 > `/design`·`/build`는 없는 문서를 만나면 해당 단계를 건너뛰도록 설계되어 있다 — 최소 세트로 시작해도 워크플로우는 동작하고, 나중에 문서를 추가하면 그때부터 자동으로 채워진다.
@@ -94,13 +94,14 @@ gh repo edit --default-branch main
 
 ### 8. 문서 체계 초기화 (3단계 결정에 따라)
 
-5-doc 아키텍처(plans·design-notebook·adr·features·domains) + 부속 타임라인(project-history)을 골격까지 만들어 둔다. `/design`·`/build`가 이 구조를 전제로 동작한다.
+커밋하는 문서 4종(design-notebook·adr·features·domains)과 커밋하지 않는 대기열 파일, 부속 타임라인(project-history)을 골격까지 만들어 둔다. `/design`·`/next`·`/build`·`/deploy`·`/track`이 이 구조를 전제로 동작한다.
 
 | 문서 | 역할 | owner |
 |------|------|-------|
-| `.claude/plans/` (+`_archive/`) | 구현 직전 메모 (휘발) | `/design` 생성, `/build` 아카이브 |
+| `LOCAL-SESSIONS.md` | 남은 작업과 세션 대기열, 배포 대기 표 (gitignored) | `/design` 행 추가, `/build` 상태 갱신, `/deploy` 배포한 행 삭제 |
+| `LOCAL-TRACK.md` | 배포 뒤 확인 목록 (gitignored) | `/build` 묶음 생성, `/track` 확인 |
 | `docs/design-notebook/` | 마스터 단위 서사 (Phase 별 누적) | `/design` + `/build` |
-| `docs/adr/` | 되돌리기 어려운 결정 (불변) | `/design` |
+| `docs/adr/` | 되돌리기 어려운 결정 (불변) | `/build` (대상 판단은 `/design`) |
 | `docs/features.md` | 현재 기능 카탈로그 | `/build` |
 | `docs/domains/<domain>.md` | 도메인 상세 (스키마·API·로직) | `/design` 골격 + `/build` 본문 |
 | `docs/project-history.md` | 포트폴리오 timeline (마일스톤급만) | `/build` |
@@ -113,7 +114,7 @@ gh repo edit --default-branch main
 - `docs/design-notebook/` — 디렉터리 + `README.md` 한 줄 (마스터 단위 1파일, phase 섹션 누적 방식 설명)
 - `docs/domains/` — 해당 시. 도메인 문서 템플릿 1개
 - `docs/_personal/` — **public repo면 필수**. `.gitignore`에 등록하고 비공개 문서 자리(`design-drafts/`, `portfolio-candidates.md`)를 만든다. 공개하면 안 되는 회고·개인 맥락의 단일 저장소
-- `.claude/plans/` + `.claude/plans/_archive/` — 계획서 저장소. `.gitignore` 등록 여부는 프로젝트 공개 정책에 따라 결정
+- `.gitignore`에 `LOCAL-*.md` 등록 — 대기열 파일 `LOCAL-SESSIONS.md`와 확인 목록 `LOCAL-TRACK.md`는 첫 `/design`과 첫 `/build` 마무리가 만든다. 파일 모양은 `design/references/queue.md`에 있다
 
 **ADR과 project-history의 역할 분담**: ADR = 판단의 근거와 트레이드오프 (왜), project-history = 기능 완성의 타임라인 (언제, 무엇을).
 
@@ -129,8 +130,12 @@ gh repo edit --default-branch main
 
 ```
 ~/.claude/skills/
-├── design/SKILL.md        # 설계 (인터뷰 → 계획서 + 문서 갱신)
-├── build/SKILL.md         # 구현 (계획서 → 코드 + 내장 리뷰 + PR + 머지 후 마무리)
+├── design/SKILL.md        # 기획 (인터뷰 → 설계 문서 + 이슈 + 대기열 행)
+├── next/SKILL.md          # 대기열 맨 앞 세션 시작 전 확인 → /build
+├── build/SKILL.md         # 세션 구현 (worktree → 코드 + 내장 리뷰 + PR + 머지 후 마무리)
+├── deploy/SKILL.md        # 배포 (프로젝트 LOCAL 파일의 배포 절차대로)
+├── track/SKILL.md         # 배포 뒤 확인 목록 처리
+├── writing/SKILL.md       # 한국어 산문 문체
 ├── review-code/SKILL.md   # 코드 리뷰 단독 실행용
 ├── orchestrate/SKILL.md   # 대규모 탐색·감사용 멀티에이전트 플레이북
 └── init-project/SKILL.md  # 이 스킬
@@ -139,9 +144,9 @@ gh repo edit --default-branch main
 연결 구조:
 
 ```
-/init-project (1회) → /design → .claude/plans/ → /compact → /build → PR → 머지 후 마무리
-                         ↑                                              │
-                         └────────────── 다음 기능 ←────────────────────┘
+/init-project (1회) → /design → LOCAL-SESSIONS.md 대기열 → (새 세션) /next 또는 /build <세션> → PR → 머지 후 마무리 → /deploy → /track
+                         ↑                                                                                      │
+                         └──────────────────────────────── 다음 기능 ←──────────────────────────────────────────┘
 ```
 
 스킬이 인식되지 않으면 `~/.claude/skills/` 디렉토리 존재 여부를 확인하도록 안내한다.
@@ -158,8 +163,8 @@ gh repo edit --default-branch main
 - 개발 워크플로우 안내:
 
 ```
-기능 개발: /design → /compact → /build
-소규모 수정: /design이 자동 판단하여 직접 처리
+기능 개발: /design → (새 세션) /next → /deploy → /track
+소규모 수정: /design이 이슈 하나와 대기열 행 하나만 만들고, 구현은 /build
 코드 리뷰만: /review-code
 대규모 탐색·감사: /orchestrate
 ```
