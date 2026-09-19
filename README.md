@@ -20,6 +20,7 @@
 - [de-ai-writing-patterns.md](workflow/de-ai-writing-patterns.md) — AI와 쓴 한국어 문서에서 반복되는 AI 문체·번역투 패턴 카탈로그. 문체 피드백을 트랜스크립트에서 추출해 스킬로 바꿔, 같은 지적을 초안 단계에서 걸러낸 방법.
 - [instruction-sheet-vs-watch-ledger.md](workflow/instruction-sheet-vs-watch-ledger.md) — 세션마다 통째로 읽히는 지시서와 배포 뒤 확인할 것을 쌓는 장부를 나누는 기준. 크기 상한은 부피를 막지만 무엇을 뺄지는 안 알려준다.
 - [worktree-session-cleanup.md](workflow/worktree-session-cleanup.md) — worktree 안에서 도는 세션이 머지 뒤 정리를 사용자에게 넘기면 세션이 끝난 뒤 worktree가 하나씩 남는 문제. 막힌 원인이 세션의 위치에 있으면 worktree를 먼저 나오도록 순서를 바꾸고, 사람이 다시 요청해서 풀린 방법을 절차에 적는다.
+- [queue-based-session-flow.md](workflow/queue-based-session-flow.md) — 이슈마다 계획서 파일을 만들던 방식을 대기열 파일 하나로 바꾼 기록. 세션 사이의 순서, 여는 날짜, 배포 묶음, 배포 뒤 확인을 세션 행에 적고 `/design`부터 `/track`까지 스킬 5개가 같은 행을 이어받는 흐름과 9/14~9/19 실제 사용 사례.
 
 ### 향후 확장 후보
 
