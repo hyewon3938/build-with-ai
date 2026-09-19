@@ -15,27 +15,33 @@ ADR(Architecture Decision Records)이 있긴 하다. 하지만 ADR은 결정만 
 
 `.claude/plans/`라는 휘발성 메모 디렉터리도 만들어두긴 했지만, 작업 끝나면 다시 안 열어본다. plans는 살아있는 문서가 아니라 일회용이었다.
 
-## 5문서 아키텍처
+## 문서 구조와 owner
 
-같은 작업의 사고를 다섯 군데에 다른 목적으로 나눠 담는다. owner를 명시해 두는 게 핵심.
+같은 작업의 사고와 진행 상태를 목적이 다른 문서에 나눠 담는다. 커밋하는 문서 5종과 커밋하지 않는 LOCAL 파일 2개가 있고, 문서마다 owner를 적어 두는 게 핵심이다.
 
 | 문서 | 역할 | 수명 | 비유 | owner |
 |------|------|------|------|-------|
-| `.claude/plans/` | 설계 직전 메모, 구현 체크리스트 | 휘발 (작업 끝나면 `_archive/`) | 회의록 | `/design` |
-| `docs/design-notebook/` | 마스터 단위 서사 — 분기점·포기·회고 | 영구, 누적 | 연구노트 | `/design` + `/build` |
-| `docs/adr/` | 되돌리기 어려운 결정 (Michael Nygard 포맷) | 영구, 불변 | 판례 | `/design` |
-| `docs/features.md` | 현재 어떤 기능이 있는지 한눈에 | 현황 | 카탈로그 | `/build` |
-| `docs/domains/<domain>.md` | 도메인 상세 — 스키마·API·로직 | 영구, 진화 | 명세서 | `/design`(phase 섹션 골격) + `/build`(본문 채움) |
+| `LOCAL-SESSIONS.md` | 남은 작업, 세션 대기열, 배포 대기 표 | 커밋하지 않음. 배포한 행은 지운다 | 작업 게시판 | `/design` 행 추가, `/build` 상태 갱신, `/deploy` 행 삭제 |
+| `LOCAL-TRACK.md` | 배포 뒤 확인 목록 | 커밋하지 않음. 확인한 항목은 체크한다 | 점검표 | `/build` 묶음 생성, `/track` 확인 |
+| 설계 원본 또는 `docs/design-notebook/` | 마스터 단위 서사: 분기점, 포기한 안, 미룬 항목, 회고 | 영구, 누적 | 연구노트 | `/design` + `/build` |
+| `docs/adr/` | 되돌리기 어려운 결정, Michael Nygard 포맷 | 영구, 불변 | 판례 | `/build`, 대상 판단은 `/design` |
+| `docs/features.md` | 지금 어떤 기능이 있는지 한눈에 | 현황 | 카탈로그 | `/build` |
+| `docs/domains/<domain>.md` | 도메인 상세: 스키마, API, 로직 | 영구, 진화 | 명세서 | `/design` 절 골격 + `/build` 본문 |
+| `docs/project-history.md` | 마일스톤급 변화의 타임라인 | 영구, 누적 | 연표 | `/build` |
 
 각 문서의 역할이 명확히 다르다.
 
-- **plans**는 "지금 이걸 어떻게 만들지"의 메모. 코드 PR이 머지되면 가치가 거의 사라진다. 그래서 `_archive/`로 옮긴다.
-- **design-notebook**은 "왜 그렇게 만들어졌는지"의 서사. 마스터 이슈 하나에 1파일, Phase 별 섹션으로 누적. 결정뿐 아니라 그 결정에 이르게 된 분기점·포기·회고까지 함께 담는다.
-- **ADR**은 "이 결정은 되돌리기 어렵다"의 기록. 불변이며, 판단이 바뀌면 새 ADR을 만든다.
+- **LOCAL-SESSIONS**는 "다음에 무엇을 어떤 순서로 열지"를 적는 게시판이다. 세션 하나가 행 하나이고, 행에는 할 일, 이슈, 손댈 파일, 선행 세션, 여는 날짜, 모델, 머지 전 확인, 배포 뒤 확인을 적는다. `/build`가 머지한 행을 배포 대기 표로 옮기고 `/deploy`가 배포한 행을 지운다. 날짜와 운영 사정이 섞이므로 커밋하지 않는다.
+- **LOCAL-TRACK**은 "배포한 뒤 운영에서 무엇을 볼지"의 점검표다. 항목마다 확인 방법과 닫는 기준을 적고, 확인 방법은 db, 로그, 슬랙, 대화 가운데 하나다. `/track`은 조회로 판정할 수 있는 항목을 직접 닫고, 대화를 봐야 하는 항목은 모아서 묻는다.
+- **설계 원본**은 "왜 그렇게 만들어졌는지"의 서사다. 프로젝트 CLAUDE.md가 설계 원본을 따로 정해 두었으면 그 문서에, 없으면 design-notebook에 마스터 이슈 하나당 1파일로 절을 쌓는다. 결정뿐 아니라 그 결정에 이르게 된 분기점, 포기한 안, 회고까지 함께 담는다.
+- **ADR**은 "이 결정은 되돌리기 어렵다"의 기록이다. 불변이며, 판단이 바뀌면 새 ADR을 만든다. `/design`은 대상인지 판단해 구현 세션의 할 일에 적고, 번호와 파일은 그 결정을 구현하는 `/build` 세션이 같은 PR에 넣는다.
 - **features**는 "지금 뭐가 되는지"의 카탈로그. 신규 합류자나 미래의 나에게 onboarding 자료.
-- **domains**는 "이 도메인은 어떻게 동작하지"의 명세서. 스키마·트리거·로직 등 도메인 내부 디테일이 누적되는 곳. phase별 섹션이 쌓이면서 진화한다.
+- **domains**는 "이 도메인은 어떻게 동작하지"의 명세서. 스키마·트리거·로직 등 도메인 내부 디테일이 누적되는 곳이다. `/design`이 새 절 제목과 TODO 표시 한 줄을 넣고, `/build`가 구현한 뒤 본문을 채운다.
+- **project-history**는 외부 청중에게 보여 줄 만한 변화만 한 줄씩 적는 연표다. 버그 수정과 리팩토링은 PR과 커밋 메시지로 남긴다.
 
-이렇게 나누면 plans가 죽은 문서가 되는 문제도 해결된다. plans는 휘발해도 되는 메모로 자리잡고, 살려야 할 사고는 design-notebook으로 이주한다.
+위에서 말한 일회용 메모의 자리는 대기열 행이다. 행에는 세션을 여는 데 필요한 것만 적고 배포하면 지운다. 오래 남겨야 할 사고는 처음부터 설계 원본에 적는다. `.claude/plans/` 계획서는 전에 만든 것이 남아 있을 때만 쓰고, 그때는 `/build`가 `references/plan-file.md`대로 그 계획서로 진행한 뒤 `_archive/`로 옮긴다.
+
+기능 하나는 `/design`이 대기열에 세션 행을 넣는 데서 시작한다. 새 세션에서 `/next`나 `/build <세션>`으로 행을 열어 구현하고 머지하면, `/build`가 행을 배포 대기 표로 옮기고 확인 묶음을 만든다. `/deploy`가 배포하면서 행을 지우고, `/track`이 확인 묶음의 항목을 닫는다. 스킬마다의 단계는 [skills-overview.md](skills-overview.md)에 그림으로 있다.
 
 ### 2026-05-17 owner 명시 추가 (lessons learned)
 
@@ -50,6 +56,8 @@ ADR(Architecture Decision Records)이 있긴 하다. 하지만 ADR은 결정만 
 
 핵심 교훈: **문서 종류만 정의하면 부족하다. 누가 언제 갱신하는지가 같은 표에 적혀 있어야 운영된다.** 추상 정의는 누락의 원인이 된다.
 
+지금 표는 위 [문서 구조와 owner](#문서-구조와-owner) 절에 있고, LOCAL 파일 2개와 project-history까지 7종을 담는다.
+
 ## 스킬 개편 — Progressive Disclosure
 
 4문서 아키텍처를 도입하면서 `/design` 스킬 자체도 같이 손봤다.
@@ -62,17 +70,19 @@ ADR(Architecture Decision Records)이 있긴 하다. 하지만 ADR은 결정만 
 
 ```
 design/
-├── SKILL.md                          # 흐름 + 단계별 1~2줄 (현재 ~11.8KB, 세부는 references/templates)
+├── SKILL.md                          # 흐름 + 단계별 몇 줄, 약 5.7KB
 ├── references/                       # 단계별 판단 기준
-│   ├── scale-judgment.md             # 소규모/중규모 판단
-│   ├── adr-criteria.md               # ADR 작성 기준 + Michael Nygard 포맷
-│   └── thought-extraction.md         # 인터뷰 사고 추출 기준
+│   ├── scale-judgment.md             # 소규모 여부 판단
+│   ├── adr-criteria.md               # ADR 대상 판단 기준과 작성 절차
+│   ├── thought-extraction.md         # 인터뷰 사고 추출 기준
+│   └── queue.md                      # 대기열 대조, 세션 나누기, 행 채우기
 └── templates/                        # 산출물 템플릿
-    ├── plan-template.md              # .claude/plans/ 계획서 포맷
-    └── design-notebook-section.md    # design-notebook phase 섹션 포맷
+    └── design-notebook-section.md    # design-notebook 절 포맷
 ```
 
-스킬이 호출되면 `SKILL.md`만 자동 로드. 단계 진행 중 필요한 보조 파일만 그때그때 추가로 읽는다. 예를 들어 8단계에서 design-notebook 갱신을 결정할 때만 `templates/design-notebook-section.md`를 로드한다.
+스킬이 호출되면 `SKILL.md`만 자동 로드. 단계 진행 중 필요한 보조 파일만 그때그때 추가로 읽는다. 예를 들어 5단계에서 design-notebook에 절을 더할 때만 `templates/design-notebook-section.md`를 로드한다.
+
+`/build`도 같은 모양이다. SKILL.md에는 8단계 흐름만 적고, worktree 준비, 커밋되는 문서 갱신, PR과 머지, 머지 뒤 마무리 절차는 `references/`의 파일에 하나씩 나눠 둔다.
 
 ### 결과
 
@@ -82,13 +92,15 @@ design/
 | 보조 파일 | 0 | 5개 (참조 시에만 로드) |
 | 신규 단계 추가 방식 | SKILL.md에 통째로 append | SKILL.md엔 한 줄, 세부는 references/templates에 |
 
-스킬 호출 시 매번 들어오는 컨텍스트가 줄어들고, 세부 가이드는 필요할 때만 읽힌다. 새 단계를 붙일 때도 흐름 문서를 짧게 유지하기 쉬워졌다. (개편 뒤로도 단계가 계속 붙어 SKILL.md는 현재 \~11.8KB까지 자랐지만, 세부를 references/templates에 두는 원칙이 유지돼 매 호출 로드는 통제된다.)
+스킬 호출 시 매번 들어오는 컨텍스트가 줄어들고, 세부 가이드는 필요할 때만 읽힌다. 새 단계를 붙일 때도 흐름 문서를 짧게 유지하기 쉬워졌다. 지금 `/design`의 SKILL.md는 약 5.7KB이고, 대기열 규칙처럼 새로 생긴 세부도 references에 둔다.
 
 ### 새로 붙은 단계
 
-- **8**: design-notebook 작성 여부 판단. 마스터 단위 첫 진입이거나 새 Phase 시작이면 design-notebook 섹션 갱신.
-- **10**: 인터뷰 사고 추출. 의사결정 분기점·포기·회고를 자동 식별 (고정 개수 아니라 기준 기반).
-- **12**: design-drafts 트리거. 구현 직전 "솔직 회고나 비공개로 남길 거 있어?" 질문 — 비공개 노트 저장 옵션.
+이때 붙인 단계 3개는 지금 `/design` 흐름에서 이렇게 동작한다.
+
+- **design-notebook 작성**: 5단계 설계 문서에서 한다. 프로젝트 CLAUDE.md가 설계 원본을 정해 두었으면 그 문서에 적고, 없으면 design-notebook 마스터 문서에 절을 더한다.
+- **인터뷰 사고 추출**: 같은 5단계에서 분기점, 포기한 안, 미룬 항목, 자신 없는 부분, 비자명한 제약 가운데 기준에 맞는 것을 개수 제한 없이 골라 설계 문서에 넣는다.
+- **design-drafts**: 사고 추출에서 비공개로 분류한 항목만 `docs/_personal/design-drafts/`에 적는다. 이 폴더가 없는 프로젝트면 LOCAL 파일에 적을지 묻는다.
 
 ### 2026-05-26 portfolio 후보 제안 단계에 추천 평가 동봉 (lessons learned)
 
@@ -103,13 +115,15 @@ phase 마무리에 Claude가 portfolio-candidates 후보를 1\~3개 자동 제�
 
 설계 사항을 `/design` 스킬 11-1·11-2 sub-section + project_portfolio_appeal_workflow 메모리에 명문화.
 
+후보 제안은 지금 `/build` 마무리 단계에서 하고, 어필 포인트를 모으는 gitignored 파일이 있는 프로젝트에서만 한다.
+
 ## 비공개 드래프트 — design-drafts
 
 설계 사고 중 일부는 공개 영역에 어울리지 않는다. 비공개 맥락, 감정 섞인 메모, 아직 정리되지 않은 가설 같은 것들.
 
 - 경로: `docs/_personal/design-drafts/` (`.gitignore` 등록)
 - 백업: iCloud 디렉터리에 실제 파일 두고, 프로젝트 안엔 symlink만. iCloud가 자동 백업.
-- 트리거: `/design` 마지막 단계에서 "비공개로 남길 거 있어?" 명시적 질문.
+- 트리거: `/design` 5단계의 사고 추출이 비공개로 분류한 항목을 `<이슈>-*.md`로 적는다. 폴더가 없는 프로젝트면 LOCAL 파일에 적을지 묻는다.
 
 design-notebook이 정리된 서사라면, design-drafts는 그 이전 단계의 raw 메모에 가깝다.
 
@@ -124,6 +138,8 @@ design-notebook이 정리된 서사라면, design-drafts는 그 이전 단계의
 셋의 공통 원인은 하나다. **owner가 표에 문장으로만 적혀 있으면 문서는 멈춘다** — 갱신을 실제로 굴리려면 실행 단계·트리거·회수 경로까지 스킬 흐름에 박혀 있어야 한다. 2026-05-17 owner 명시가 "누가"를 정한 거였다면, 이번엔 "언제 어느 단계에서"를 박았다.
 
 고친 방식: `/build`에 **features.md 갱신 단계**(3-4)와 **머지 후 마무리 단계**(10, 계획서 `_archive/` 이동 + project-history 재점검)를 신설하고, `/design`의 마스터 cross-check에 **직전 phase 기록 누락 회수** 항목을 넣어 스킬 밖에서 close된 작업의 누락을 다음 진입 때 주워 오게 했다. 상세는 [skill-audit-2026-07.md](skill-audit-2026-07.md).
+
+지금 `/build`는 features.md와 project-history를 4단계에서 머지 전에 PR 브랜치에 넣고, 마무리 단계에서는 대기열 행을 배포 대기 표로 옮기며, `_archive/` 이동은 전에 만든 계획서로 진행한 세션에만 한다.
 
 ## 메타 — 이 글을 어디 둘 것인가
 
