@@ -9,7 +9,7 @@
     {
       "name": "build-with-ai",
       "source": "./plugin",
-      "description": "워크플로우 스킬(/design·/next·/build·/deploy·/track·/feedback·/init-project·/review-code·/orchestrate·/writing), scout/worker/verifier 에이전트, secrets·파괴 명령 가드 훅"
+      "description": "워크플로우 스킬(/design·/next·/build·/deploy·/track·/slack-feedback·/init-project·/review-code·/orchestrate·/writing), scout/worker/verifier 에이전트, secrets·파괴 명령 가드 훅"
     }
   ]
 }

@@ -21,7 +21,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 ├── .claude-plugin/marketplace.json     ← 외부 설치용 카탈로그
 ├── plugin/
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/{build,deploy,design,feedback,init-project,next,orchestrate,review-code,track,writing}/
+│   ├── skills/{build,deploy,design,init-project,next,orchestrate,review-code,slack-feedback,track,writing}/
 │   ├── agents/{scout,worker,verifier}.md
 │   ├── scripts/{db-query,env-has}.mjs  ← 운영 DB 조회, 환경 변수 유무 확인
 │   └── hooks/
@@ -96,7 +96,7 @@ graph TD
     I --> J["/deploy<br/>사전 점검 → 사용자 확인 → 운영 반영 → 배포 기록"]
     J --> K["/track<br/>조회로 판정할 항목은 닫고 나머지는 모아서 질문"]
     K -.새로 할 일.-> B
-    L["/feedback<br/>슬랙 피드백을 원인별로 묶기"] -.-> B
+    L["/slack-feedback<br/>슬랙 피드백을 원인별로 묶기"] -.-> B
 
     classDef gate fill:#fff7ed,stroke:#f97316,color:#9a3412
     class G,P,J gate
@@ -110,7 +110,7 @@ graph TD
 4. **완료 보고와 머지**: CI 결과를 확인한 뒤에만 완료를 보고한다. 행의 머지 전 확인 칸이 차 있으면 PR까지 올리고 멈추고, 사람이 확인을 마치면 같은 세션을 `/build <세션>`으로 이어서 머지한다. 칸이 비어 있으면 `/build`가 CI 통과 뒤 바로 머지한다.
 5. **머지 뒤 마무리**: worktree와 브랜치를 지우고, 대기열 행을 배포 대기 표로 옮기고, `LOCAL-TRACK.md`에 배포 뒤 확인 묶음을 만든다. 세션은 PR을 만든 뒤에 멈추기 쉬워서, 감사에서 빠진다고 확인한 머지 뒤의 일을 스킬 단계로 적어 둔다. 완료 보고 끝에는 다음 세션과 여는 날짜를 적는다.
 6. **`/deploy`**: 같은 배포 묶음의 세션이 모두 배포 대기 표에 있으면 부른다. 프로젝트 LOCAL 파일의 배포 절대로 사전 점검을 하고, 운영 서버에 명령을 보내기 직전에 사용자 확인을 한 번 받는다. 올린 뒤에는 배포 기록을 남기고 배포 대기 표에서 행을 지운다.
-7. **`/track`과 `/feedback`**: `/track`은 확인 묶음의 항목 가운데 db, 로그, 슬랙 조회로 판정할 수 있는 것은 직접 닫고, 대화를 봐야 하는 항목과 기한이 지난 항목은 모아서 한 번에 묻는다. `/feedback`은 슬랙에 달린 피드백을 원인별로 묶어 대기열과 확인 목록에 합친다. 두 스킬에서 나온 새 일은 다시 대기열로 간다.
+7. **`/track`과 `/slack-feedback`**: `/track`은 확인 묶음의 항목 가운데 db, 로그, 슬랙 조회로 판정할 수 있는 것은 직접 닫고, 대화를 봐야 하는 항목과 기한이 지난 항목은 모아서 한 번에 묻는다. `/slack-feedback`은 슬랙에 달린 피드백을 원인별로 묶어 대기열과 확인 목록에 합친다. 두 스킬에서 나온 새 일은 다시 대기열로 간다.
 
 ## 5. 세션 목표 게이트 /goal
 
