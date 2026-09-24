@@ -13,6 +13,8 @@ disable-model-invocation: true
 
 메인 체크아웃 경로를 `git worktree list --porcelain`의 첫 `worktree` 줄에서 얻고, 그 경로의 `LOCAL-SESSIONS.md`를 읽는다. worktree 안에서 불렀어도 같은 경로를 쓴다. 파일이 없으면 대기열이 없다고 알리고 끝낸다.
 
+일정 표에 오늘보다 앞선 날짜 줄이 있으면 `<이 스킬 폴더>/../design/references/queue.md` 「지난 일정 정리」대로 정리하고, 옮긴 할 일과 물어볼 것을 알린다.
+
 ### 2. 세션 고르기
 
 고르기 전에 「지금」 절의 사용자가 정해야 하는 일과, 남은 작업 가운데 다시 볼 날짜가 오늘이거나 지난 항목을 확인한다. 있으면 항목마다 정할 것을 한 줄씩 알리고 `/design <주제>`로 설계하자고 제안한 뒤 이어간다. 다시 볼 날짜가 된 항목은 `<이 스킬 폴더>/../design/references/queue.md` 「남은 작업에 넣는 기준」으로 다시 나눠서 알린다.

@@ -93,7 +93,8 @@ graph LR
 ```mermaid
 graph LR
     Q(["새 세션에서 /next"]) --> RD[("LOCAL-SESSIONS.md<br/>메인 체크아웃 경로")]
-    RD --> DU["사용자가 정해야 하는 일<br/>다시 볼 날짜가 된 남은 작업"]
+    RD --> PS["지난 날짜 줄 정리<br/>남은 할 일 옮기고 줄 지우기"]
+    PS --> DU["사용자가 정해야 하는 일<br/>다시 볼 날짜가 된 남은 작업"]
     DU -.있으면.-> DS(["정할 것 알림<br/>/design 제안"])
     DU --> PK["상태가 대기인<br/>맨 앞 행 고르기"]
     PK --> CK{"시작 전 확인<br/>여는 날짜 · 선행 세션<br/>파일 겹침"}
@@ -108,7 +109,7 @@ graph LR
     classDef private fill:#eff6ff,stroke:#3b82f6,color:#1e3a8a
 
     class Q,ASK,ASK2,BD,DS io
-    class DU,PK,CK,MD judge
+    class PS,DU,PK,CK,MD judge
     class RD private
 ```
 
