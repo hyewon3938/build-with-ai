@@ -28,7 +28,8 @@ const ENV_FILE = ".env";
 const ENV_KEYS = ["DB_QUERY_SSH_HOST", "DB_QUERY_CONTAINER", "DB_QUERY_PATH"];
 const ASSIGN = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)$/;
 // ssh와 docker 인자로 넘기므로 옵션으로 읽히거나 원격 쉘이 해석할 문자를 막는다.
-const NAME = /^[A-Za-z0-9_.@][A-Za-z0-9_.@-]*$/;
+// 사용자@호스트 모양의 호스트는 @ 뒤도 -로 시작할 수 없다.
+const NAME = /^[A-Za-z0-9_.][A-Za-z0-9_.-]*(?:@[A-Za-z0-9_.][A-Za-z0-9_.-]*)?$/;
 const LIMIT = { default: 50, min: 1, max: 200 };
 const MAX_CHARS = { default: 300, min: 20, max: 2000 };
 const MAX_OUTPUT_CHARS = 200_000;
@@ -378,7 +379,9 @@ for (const [key, value] of [
   ["DB_QUERY_CONTAINER", container],
 ]) {
   if (value && !NAME.test(value)) {
-    usage(`${key}에는 영문자·숫자와 _.@-만 쓸 수 있고 -로 시작할 수 없다`);
+    usage(
+      `${key}에는 영문자·숫자와 _.-, 사용자를 붙일 때 @ 하나만 쓸 수 있고 맨 앞과 @ 뒤에 -를 둘 수 없다`,
+    );
   }
 }
 const sql = readSql();

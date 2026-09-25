@@ -23,7 +23,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/{build,deploy,design,init-project,next,orchestrate,review-code,slack-feedback,track,writing}/
 │   ├── agents/{scout,worker,verifier}.md
-│   ├── scripts/{db-query,env-has}.mjs  ← 운영 DB 조회, 환경 변수 유무 확인
+│   ├── scripts/{db-query,log-query,env-has}.mjs  ← 운영 DB·로그 조회, 환경 변수 유무 확인
 │   └── hooks/
 │       ├── hooks.json                  ← 플러그인 설치자용 훅 등록
 │       └── scripts/guard-*.mjs (+회귀 테스트)

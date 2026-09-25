@@ -4,6 +4,8 @@ disable-model-invocation: true
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/db-query.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/db-query.mjs)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/log-query.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/log-query.mjs)
 ---
 
 # /track - 배포 뒤 확인 목록 처리 스킬
@@ -42,12 +44,16 @@ $ARGUMENTS
 
 `references/checks.md`의 확인 방법별 절차로 조회한다.
 
-DB 조회는 사용자에게 묻지 않고 바로 돌린다. 이 스킬의 allowed-tools가 아래 명령을 허용하므로, 스크립트 경로를 글자 그대로 명령 맨 앞에 두고 한 명령에 조회 하나만 넣는다. 경로를 변수에 담거나, realpath로 풀거나, 다른 명령과 `;`나 `&&`로 이으면 허용 규칙에 맞지 않아 권한 확인이 뜬다.
+DB 조회와 로그 조회는 사용자에게 묻지 않고 바로 돌린다. 이 스킬의 allowed-tools가 아래 명령을 허용하므로, 스크립트 경로를 글자 그대로 명령 맨 앞에 두고 한 명령에 조회 하나만 넣는다. 경로를 변수에 담거나, realpath로 풀거나, 다른 명령과 `;`나 `&&`로 이으면 허용 규칙에 맞지 않아 권한 확인이 뜬다.
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/db-query.mjs --limit 20 <<'SQL'
 SELECT count(*) FROM <표> WHERE <시각 컬럼> >= '<배포 시각>'
 SQL
+```
+
+```bash
+node ${CLAUDE_SKILL_DIR}/scripts/log-query.mjs --since '<배포 시각>' --grep '<낱말>' --count
 ```
 
 - 닫는 기준을 채웠으면 항목을 체크하고, 묶음의 확인 결과에 무엇을 보고 판단했는지 한 줄 적는다.
