@@ -4,9 +4,11 @@
 // 사용: node db-query.mjs [--limit N] [--max-chars N] < 조회.sql
 // SQL은 stdin으로 받고 SELECT나 WITH로 시작하는 한 문장만 돌린다. 접속 정보는 현재 폴더의 .env에서
 // DB_QUERY_SSH_HOST(ssh 설정의 호스트 이름), DB_QUERY_CONTAINER, DB_QUERY_PATH(컨테이너 안 DB 파일
-// 경로)를 읽는다. 다른 env 파일을 고르는 옵션은 두지 않아서, 조회 대상은 그 폴더의 .env에 사람이 적은
-// 값으로 정해진다. 호스트와 컨테이너가 있으면 ssh로 그 컨테이너 안의 node에 조회 프로그램을 stdin으로
-// 넘기고, 둘 다 비어 있으면 현재 폴더에서 node로 직접 연다(로컬 시험용). 어느 쪽이든 better-sqlite3가
+// 경로)를 읽는다. 다른 env 파일을 고르는 옵션은 두지 않고, 현재 폴더와 이 세 값이 사용자가 query-pin.mjs로
+// 고정한 값과 같을 때만 돈다(query-guard.mjs). 그래서 다른 폴더에 .env를 만들거나 설정을 바꾸면 사용자가
+// 터미널에서 다시 고정할 때까지 멈춘다. 호스트와 컨테이너가 있으면 ssh 설정 파일을 읽지 않고 고정할 때 풀어
+// 둔 접속 값과 줄인 환경 변수로 시스템 ssh를 불러, 그 컨테이너 안의 node에 조회 프로그램을 stdin으로
+// 넘긴다. 둘 다 비어 있으면 현재 폴더에서 node로 직접 연다(로컬 시험용). 어느 쪽이든 better-sqlite3가
 // 설치된 작업 폴더에서 돈다.
 //
 // DB는 읽기 전용 모드와 query_only로 열고, 준비한 문장이 값을 돌려주는 읽기 전용 문장인지 한 번 더
@@ -20,16 +22,23 @@
 // 호스트·컨테이너 이름과 DB 경로(설정 값, SQLite가 연 파일 경로, 그 폴더)는 출력과 오류에 그대로
 // 찍힐 때만 가리고, 조회가 경로를 쪼개거나 바꿔 찍는 것은 막지 못한다. ssh 자체가 실패하면 원문 대신
 // 분류만 알린다. 종료 코드는 성공 0, 조회 실패 1, 사용법·설정 오류 2다.
-import { readFileSync, readSync } from "node:fs";
+import { readSync } from "node:fs";
 import { spawn } from "node:child_process";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  ENV_FILE,
+  NAME,
+  SSH_BIN,
+  dbTarget,
+  readEnvValues,
+  sshConnectArgs,
+  sshEnv,
+  verifyPin,
+} from "./query-guard.mjs";
 
-const ENV_FILE = ".env";
 const ENV_KEYS = ["DB_QUERY_SSH_HOST", "DB_QUERY_CONTAINER", "DB_QUERY_PATH"];
-const ASSIGN = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)$/;
-// ssh와 docker 인자로 넘기므로 옵션으로 읽히거나 원격 쉘이 해석할 문자를 막는다.
-// 사용자@호스트 모양의 호스트는 @ 뒤도 -로 시작할 수 없다.
-const NAME = /^[A-Za-z0-9_.][A-Za-z0-9_.-]*(?:@[A-Za-z0-9_.][A-Za-z0-9_.-]*)?$/;
+const PIN_COMMAND = `node ${join(dirname(fileURLToPath(import.meta.url)), "query-pin.mjs")}`;
 const LIMIT = { default: 50, min: 1, max: 200 };
 const MAX_CHARS = { default: 300, min: 20, max: 2000 };
 const MAX_OUTPUT_CHARS = 200_000;
@@ -153,31 +162,14 @@ function parseArgs(argv) {
   return opts;
 }
 
-// 따옴표로 감싼 값은 따옴표를 떼고, 감싸지 않은 값은 공백 뒤 # 주석을 뗀다.
-function unquote(raw) {
-  const quoted = /^(["'])(.*?)\1(?:\s+#.*)?$/.exec(raw);
-  if (quoted) return quoted[2];
-  if (raw.startsWith("#")) return "";
-  return raw.replace(/\s+#.*$/, "").trim();
-}
-
 // 필요한 세 이름만 읽고 나머지 줄은 보지 않는다. 같은 이름은 마지막 줄을 따른다.
 function readEnv(file) {
-  let text;
   try {
-    text = readFileSync(file, "utf8");
+    return readEnvValues(file, ENV_KEYS);
   } catch (err) {
-    // 오류 객체를 통째로 찍지 않는다. 코드만 알린다.
-    console.error(`${file} 파일을 읽지 못했다: ${err?.code ?? "unknown"}`);
+    console.error(err.message);
     process.exit(2);
   }
-  const found = {};
-  for (const line of text.split(/\r?\n/)) {
-    const m = ASSIGN.exec(line);
-    if (!m || !ENV_KEYS.includes(m[1])) continue;
-    found[m[1]] = unquote(m[2].trim());
-  }
-  return found;
 }
 
 function stripLeadingComments(sql) {
@@ -288,24 +280,22 @@ worker.on("exit", () => {
 `;
 }
 
-function run(program, { host, container }) {
+function run(program, { host, container, ssh }) {
   return new Promise((resolve) => {
     const child = host
-      ? spawn("ssh", [
-          "-o",
-          "BatchMode=yes",
-          "-o",
-          "ConnectTimeout=15",
-          "-o",
-          "LogLevel=ERROR",
-          host,
-          "docker",
-          "exec",
-          "-i",
-          container,
-          "node",
-          "-",
-        ])
+      ? spawn(
+          SSH_BIN,
+          [
+            ...sshConnectArgs(ssh, host),
+            "docker",
+            "exec",
+            "-i",
+            container,
+            "node",
+            "-",
+          ],
+          { env: sshEnv() },
+        )
       : spawn(process.execPath, ["-"]);
     const out = [];
     const err = [];
@@ -364,10 +354,8 @@ function lastResult(stdout) {
 }
 
 const opts = parseArgs(process.argv.slice(2));
-const env = readEnv(ENV_FILE);
-const host = env.DB_QUERY_SSH_HOST ?? "";
-const container = env.DB_QUERY_CONTAINER ?? "";
-const dbPath = env.DB_QUERY_PATH ?? "";
+const target = dbTarget(readEnv(ENV_FILE));
+const { host, container, path: dbPath } = target;
 if (!dbPath) usage(`${ENV_FILE}에 DB_QUERY_PATH가 없다`);
 if (Boolean(host) !== Boolean(container)) {
   usage(
@@ -384,11 +372,18 @@ for (const [key, value] of [
     );
   }
 }
+// 확인에 쓴 고정 값으로 바로 접속한다. 조회 중에 ssh 설정이나 고정 파일을 다시 읽지 않는다.
+const pin = verifyPin("db", target, { pinCommand: PIN_COMMAND });
+if (pin.problem) {
+  console.error(pin.problem);
+  process.exit(2);
+}
 const sql = readSql();
 
 // 설정 값과 worker가 알려 준 파일 경로, 각각의 폴더를 가린다. JSON으로 이스케이프된 모양도 함께 넣는다.
 function makeMask(reported) {
   const values = [dbPath, host, container, ...reported];
+  if (pin.ssh) values.push(pin.ssh.hostname);
   if (!host) values.push(resolve(dbPath));
   const hidden = new Set();
   for (const value of values) {
@@ -434,7 +429,7 @@ const result = await run(
     heapMb: WORKER_HEAP_MB,
     timeoutMs: QUERY_TIMEOUT_MS,
   }),
-  { host, container },
+  { host, container, ssh: pin.ssh },
 );
 
 if (result.spawnError) {

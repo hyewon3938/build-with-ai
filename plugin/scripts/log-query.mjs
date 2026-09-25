@@ -9,6 +9,9 @@
 // 접속 정보는 현재 폴더의 .env에서 읽는다. LOG_QUERY_SSH_HOST와 LOG_QUERY_CONTAINER가 없으면
 // DB_QUERY_SSH_HOST와 DB_QUERY_CONTAINER를 쓰고, 저장한 로그 파일은 LOG_QUERY_DIR(서버에서 로그 파일을
 // 모아 두는 폴더의 절대 경로)에서 찾는다. 호스트가 비어 있으면 같은 명령을 이 컴퓨터에서 돌린다(로컬 시험용).
+// 현재 폴더와 이 세 값이 사용자가 query-pin.mjs로 고정한 값과 같을 때만 돌고(query-guard.mjs), 시스템
+// ssh를 설정 파일 없이 고정할 때 풀어 둔 접속 값과 줄인 환경 변수로 부른다. 다른 폴더에 .env를 만들거나
+// 설정을 바꾸면 다시 고정할 때까지 멈춘다.
 //
 // 원격에서 돌리는 명령은 docker logs, 그 폴더의 ls -1, 그 폴더 안 .log 파일의 cat 세 가지뿐이다. 명령에
 // 들어가는 값은 호스트·컨테이너 이름, 폴더 경로, 파일 이름, 유닉스 초 시각이고, 모두 정해진 글자만 허용해
@@ -28,17 +31,23 @@
 // 출력은 일치한 줄을 시각 순으로 --limit개까지 찍고, 마지막 줄들에 일치 수, 훑은 줄 수, 받은 로그의 시각
 // 범위를 적는다. 입력 상한이나 시간 제한에 걸려 끝까지 못 봤으면 본 데까지 찍고 1로 끝난다. 종료 코드는
 // 성공 0, 조회 실패 1, 사용법·설정 오류 2다.
-import { readFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
-import { posix } from "node:path";
+import { dirname, join, posix } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  DIR,
+  ENV_FILE,
+  NAME,
+  SSH_BIN,
+  logTarget,
+  readEnvValues,
+  sshConnectArgs,
+  sshEnv,
+  verifyPin,
+} from "./query-guard.mjs";
 
-const ENV_FILE = ".env";
-const ASSIGN = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)$/;
-// ssh와 docker 인자로 넘기므로 옵션으로 읽히거나 원격 쉘이 해석할 문자를 막는다.
-// 사용자@호스트 모양의 호스트는 @ 뒤도 -로 시작할 수 없다.
-const NAME = /^[A-Za-z0-9_.][A-Za-z0-9_.-]*(?:@[A-Za-z0-9_.][A-Za-z0-9_.-]*)?$/;
-const DIR = /^(?:\/[A-Za-z0-9_.@-]+)+\/?$/;
+const PIN_COMMAND = `node ${join(dirname(fileURLToPath(import.meta.url)), "query-pin.mjs")}`;
 const FILE = /^[A-Za-z0-9_][A-Za-z0-9_.@-]*\.log$/;
 const LIMIT = { default: 50, min: 1, max: 200 };
 const MAX_CHARS = { default: 300, min: 20, max: 2000 };
@@ -50,14 +59,6 @@ const TOTAL_TIMEOUT_MS = 120_000;
 // 받은 로그의 첫 줄이 --since보다 이만큼 늦으면 그 사이 로그가 컨테이너 재생성으로 사라졌을 수 있다고 알린다.
 const LATE_START_MS = 10 * 60_000;
 const UNIT_MS = { m: 60_000, h: 3_600_000, d: 86_400_000 };
-const SSH_OPTS = [
-  "-o",
-  "BatchMode=yes",
-  "-o",
-  "ConnectTimeout=15",
-  "-o",
-  "LogLevel=ERROR",
-];
 // ssh는 자기 오류로 끝나면 255를 돌려준다. 이때 stderr에는 설정 파일의 실제 주소가 찍힐 수 있다.
 const SSH_FAILED = 255;
 const SSH_ERRORS = [
@@ -242,39 +243,19 @@ function parseArgs(argv) {
   return opts;
 }
 
-// 따옴표로 감싼 값은 따옴표를 떼고, 감싸지 않은 값은 공백 뒤 # 주석을 뗀다.
-function unquote(raw) {
-  const quoted = /^(["'])(.*?)\1(?:\s+#.*)?$/.exec(raw);
-  if (quoted) return quoted[2];
-  if (raw.startsWith("#")) return "";
-  return raw.replace(/\s+#.*$/, "").trim();
-}
-
 // 설정 이름의 값과, 출력에서 가릴 비밀 값 목록을 읽는다. 같은 이름은 마지막 줄을 따른다.
 function readEnv(file) {
-  let text;
+  let values;
   try {
-    text = readFileSync(file, "utf8");
+    values = readEnvValues(file);
   } catch (err) {
-    // 오류 객체를 통째로 찍지 않는다. 코드만 알린다.
-    console.error(`${file} 파일을 읽지 못했다: ${err?.code ?? "unknown"}`);
+    console.error(err.message);
     process.exit(2);
-  }
-  const values = {};
-  for (const line of text.split(/\r?\n/)) {
-    const m = ASSIGN.exec(line);
-    if (m) values[m[1]] = unquote(m[2].trim());
   }
   const secrets = Object.entries(values)
     .filter(([k, v]) => SECRET_KEY.test(k) && v.length >= SECRET_MIN_CHARS)
     .map(([, v]) => v);
-  const pick = (key, fallback) => values[key] || values[fallback] || "";
-  return {
-    host: pick("LOG_QUERY_SSH_HOST", "DB_QUERY_SSH_HOST"),
-    container: pick("LOG_QUERY_CONTAINER", "DB_QUERY_CONTAINER"),
-    dir: values.LOG_QUERY_DIR ?? "",
-    secrets,
-  };
+  return { ...logTarget(values), secrets };
 }
 
 function checkConfig(opts, cfg) {
@@ -319,7 +300,7 @@ function remoteCommand(opts, cfg) {
 
 function makeMask(cfg) {
   const hidden = new Set();
-  for (const value of [cfg.host, cfg.container, cfg.dir]) {
+  for (const value of [cfg.host, cfg.container, cfg.dir, cfg.ssh?.hostname]) {
     for (const v of [value, posix.dirname(value)]) {
       if (v && v.length >= 2) hidden.add(v);
     }
@@ -376,7 +357,9 @@ function formatTime(ms) {
 function run(cmd, cfg, onLine) {
   return new Promise((resolve) => {
     const child = cfg.host
-      ? spawn("ssh", [...SSH_OPTS, cfg.host, ...cmd])
+      ? spawn(SSH_BIN, [...sshConnectArgs(cfg.ssh, cfg.host), ...cmd], {
+          env: sshEnv(),
+        })
       : spawn(cmd[0], cmd.slice(1));
     const errors = [];
     let errorChars = 0;
@@ -439,6 +422,17 @@ function run(cmd, cfg, onLine) {
 const opts = parseArgs(process.argv.slice(2));
 const cfg = readEnv(ENV_FILE);
 checkConfig(opts, cfg);
+// 확인에 쓴 고정 값으로 바로 접속한다. 조회 중에 ssh 설정이나 고정 파일을 다시 읽지 않는다.
+const pin = verifyPin(
+  "log",
+  { host: cfg.host, container: cfg.container, dir: cfg.dir },
+  { pinCommand: PIN_COMMAND },
+);
+if (pin.problem) {
+  console.error(pin.problem);
+  process.exit(2);
+}
+cfg.ssh = pin.ssh;
 const mask = makeMask(cfg);
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 

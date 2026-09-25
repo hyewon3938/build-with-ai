@@ -30,7 +30,7 @@ $ARGUMENTS
 
 ### 2. 새 행 가져오기
 
-조회 스크립트는 `<이 스킬 폴더>/../../scripts/db-query.mjs`다. `realpath`로 심링크와 `..`를 푼 경로로 부르고, 결과 제한과 오류 처리는 `<이 스킬 폴더>/../track/references/checks.md`의 db 절을 따른다. 표와 컬럼 이름은 프로젝트 절에 적힌 것을 쓴다.
+조회 스크립트는 `<이 스킬 폴더>/../../scripts/db-query.mjs`다. `realpath`로 심링크와 `..`를 푼 경로로 부르고, 결과 제한, 폴더 고정, 오류 처리는 `<이 스킬 폴더>/../track/references/checks.md`의 db 절을 따른다. 표와 컬럼 이름은 프로젝트 절에 적힌 것을 쓴다.
 
 ```bash
 node <스크립트 절대 경로> --limit 100 <<'SQL'

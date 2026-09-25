@@ -24,6 +24,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 │   ├── skills/{build,deploy,design,init-project,next,orchestrate,review-code,slack-feedback,track,writing}/
 │   ├── agents/{scout,worker,verifier}.md
 │   ├── scripts/{db-query,log-query,env-has}.mjs  ← 운영 DB·로그 조회, 환경 변수 유무 확인
+│   ├── scripts/{query-guard,query-pin}.mjs  ← 조회를 사용자가 터미널에서 고정한 폴더·접속 값으로 제한 (회귀 테스트 run-query-guard-tests.mjs)
 │   └── hooks/
 │       ├── hooks.json                  ← 플러그인 설치자용 훅 등록
 │       └── scripts/guard-*.mjs (+회귀 테스트)
