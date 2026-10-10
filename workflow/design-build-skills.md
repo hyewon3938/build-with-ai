@@ -41,7 +41,7 @@ ADR(Architecture Decision Records)이 있긴 하다. 하지만 ADR은 결정만 
 
 위에서 말한 일회용 메모의 자리는 대기열 행이다. 행에는 세션을 여는 데 필요한 것만 적고 배포하면 지운다. 오래 남겨야 할 사고는 처음부터 설계 원본에 적는다. `.claude/plans/` 계획서는 전에 만든 것이 남아 있을 때만 쓰고, 그때는 `/build`가 `references/plan-file.md`대로 그 계획서로 진행한 뒤 `_archive/`로 옮긴다.
 
-기능 하나는 `/design`이 대기열에 세션 행을 넣는 데서 시작한다. 새 세션에서 `/next`나 `/build <세션>`으로 행을 열어 구현하고 머지하면, `/build`가 행을 배포 대기 표로 옮기고 확인 묶음을 만든다. `/deploy`가 배포하면서 행을 지우고, `/track`이 확인 묶음의 항목을 닫는다. 스킬마다의 단계는 [skills-overview.md](skills-overview.md)에 그림으로 있고, 계획서 대신 대기열을 쓰게 된 경위와 실제 사용 사례는 [queue-based-session-flow.md](queue-based-session-flow.md)에 있다.
+기능 하나는 `/design`이 대기열에 세션 행을 넣는 데서 시작한다. 새 세션에서 `/next`나 `/build <세션>`으로 행을 열어 구현하고 머지하면, `/build`가 행을 배포 대기 표로 옮기고 확인 묶음을 만든다. `/deploy`가 배포하면서 행을 지우고, `/track`이 확인 묶음의 항목을 닫는다. 사용자가 자리를 비우는 동안은 대기열에 자율 진행을 켜 두면 `/next`와 `/build`가 묻는 지점을 가정과 아침 목록으로 대신하며 줄 표의 세션을 이어 돈다. 스킬마다의 단계는 [skills-overview.md](skills-overview.md)에 그림으로 있고, 계획서 대신 대기열을 쓰게 된 경위와 실제 사용 사례는 [queue-based-session-flow.md](queue-based-session-flow.md)에 있다.
 
 ### 2026-05-17 owner 명시 추가 (lessons learned)
 
