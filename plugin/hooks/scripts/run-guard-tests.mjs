@@ -20,6 +20,7 @@ const CASES = {
       ". ./prod/.env",
       "docker exec app env",
       "kubectl exec pod -- printenv",
+      // eval 전용 규칙은 지웠고, 안의 cat .env는 덤프 규칙이 계속 막는다
       "eval $(cat ./x/.env)",
       "cat /srv/app/.env",
       "tail -n5 ../.env.production",
@@ -95,7 +96,11 @@ function docSizeCases() {
     writeFileSync(join(repo, "CLAUDE.md"), "가".repeat(n), "utf8");
   const hook = (command, cwd = repo) =>
     spawnSync("node", [join(here, "guard-doc-size.mjs")], {
-      input: JSON.stringify({ tool_name: "Bash", cwd, tool_input: { command } }),
+      input: JSON.stringify({
+        tool_name: "Bash",
+        cwd,
+        tool_input: { command },
+      }),
       encoding: "utf8",
     }).status;
   const commit = 'git commit -m "docs: 상태 절 기록"';
@@ -171,7 +176,9 @@ for (const [name, got, want] of docSizeCases()) {
     pass++;
   } else {
     fail++;
-    console.error(`MISS [guard-doc-size.mjs] want=${want} got=${got} :: ${name}`);
+    console.error(
+      `MISS [guard-doc-size.mjs] want=${want} got=${got} :: ${name}`,
+    );
   }
 }
 console.log(`${fail === 0 ? "PASS" : "FAIL"} — ${pass} ok / ${fail} miss`);
