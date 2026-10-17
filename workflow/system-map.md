@@ -25,6 +25,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 │   ├── agents/{scout,worker,verifier}.md
 │   ├── scripts/{db-query,log-query,env-has}.mjs  ← 운영 DB·로그 조회, 환경 변수 유무 확인
 │   ├── scripts/{query-guard,query-pin}.mjs  ← 조회를 사용자가 터미널에서 고정한 폴더·접속 값으로 제한 (회귀 테스트 run-query-guard-tests.mjs)
+│   ├── scripts/queue-read.mjs  ← 대기열 파일에서 필요한 절·행·줄만 읽기 (회귀 테스트 run-queue-read-tests.mjs)
 │   └── hooks/
 │       ├── hooks.json                  ← 플러그인 설치자용 훅 등록
 │       └── scripts/guard-*.mjs (+회귀 테스트)

@@ -69,7 +69,7 @@ Closes #N
 gh pr checks <N> --watch
 ```
 
-실패하면 원인을 고치고 다시 푸시해 통과를 확인한다. 체크가 없는 repo는 없다고 보고한다.
+이 명령은 Bash 도구의 `run_in_background`로 돌리고 끝났다는 알림을 받은 뒤 결과를 본다. sleep 뒤 상태를 다시 보는 반복은 호출마다 그때까지의 맥락을 다시 읽게 하므로 쓰지 않는다. 실패하면 원인을 고치고 다시 푸시해 통과를 확인한다. 체크가 없는 repo는 없다고 보고한다.
 
 ## 머지
 
@@ -80,7 +80,7 @@ gh pr merge <N> --<방식>
 gh pr view <N> --json state,mergedAt,mergeCommit
 ```
 
-state가 MERGED인지 확인한 뒤 base 브랜치 CI를 본다. 실행 중이면 `gh run watch <run-id>`로 끝까지 본다.
+state가 MERGED인지 확인한 뒤 base 브랜치 CI를 본다. 실행 중이면 `gh run watch <run-id>`를 CI 절과 같이 `run_in_background`로 돌려 끝까지 본다.
 
 ```bash
 gh run list --branch <base> --limit 3
