@@ -68,7 +68,7 @@ opus 세션이면 `/review-code`로 브랜치 diff를 리뷰한다. sonnet 세�
 
 ### 8. 마무리
 
-`references/wrap-up.md`대로 worktree와 브랜치를 정리하고, 대기열 행을 배포 대기 표로 옮기고, `LOCAL-TRACK.md`에 확인 묶음을 만든다. 같은 배포 묶음의 세션이 모두 배포 대기 표에 있으면 `/deploy`로 배포할 차례라고 알린다.
+`references/wrap-up.md`대로 worktree와 브랜치를 정리하고, 대기열 행을 배포 대기 표로 옮기고, `LOCAL-TRACK.md`에 확인 묶음을 만든다. 같은 배포 묶음의 세션이 모두 배포 대기 표에 있으면 시간대를 정해 미루지 않고 바로 `/deploy`로 배포할 차례라고 알린다.
 
 ## 자율 진행
 
