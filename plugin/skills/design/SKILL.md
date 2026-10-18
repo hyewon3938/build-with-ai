@@ -1,6 +1,7 @@
 ---
 description: 기획과 대기열 - 인터뷰부터 설계 문서, 이슈, 세션 나누기, 대기열 반영까지
 disable-model-invocation: true
+effort: xhigh
 ---
 
 # /design - 기획과 대기열 스킬
