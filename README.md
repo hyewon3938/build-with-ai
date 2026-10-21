@@ -22,6 +22,7 @@
 - [worktree-session-cleanup.md](workflow/worktree-session-cleanup.md) — worktree 안에서 도는 세션이 머지 뒤 정리를 사용자에게 넘기면 세션이 끝난 뒤 worktree가 하나씩 남는 문제. 막힌 원인이 세션의 위치에 있으면 worktree를 먼저 나오도록 순서를 바꾸고, 사람이 다시 요청해서 풀린 방법을 절차에 적는다.
 - [queue-based-session-flow.md](workflow/queue-based-session-flow.md) — 이슈마다 계획서 파일을 만들던 방식을 대기열 파일 하나로 바꾼 기록. 세션 사이의 순서, 여는 날짜, 배포 묶음, 배포 뒤 확인을 세션 행에 적고 `/design`부터 `/track`까지 스킬 5개가 같은 행을 이어받는 흐름과 9/14~9/19 실제 사용 사례.
 - [foundation-doc-first.md](workflow/foundation-doc-first.md) — 프로젝트가 무엇을 왜 만드는지를 근본 문서 한 곳에 적고, 세션마다 불러와 판단 기준 맨 앞에 두는 관리 방식. 방향에 번호를 붙여 결정마다 기댄 줄을 적고, 근본에 가까운 질문은 선택지 대신 열린 질문으로 묻는다. 기획 기록에는 줄마다 적용 범위를 적어 한 줄이 원칙처럼 쓰이지 않게 한다. 기획 페이지가 길어지면 정한 것만 모은 페이지를 따로 두고 확인은 채팅에서 한다.
+- [token-usage.md](workflow/token-usage.md) — 세션 기록에서 호출 수와 캐시 끊김을 숫자로 세는 방법과, 7일 기록에서 찾은 낭비 지점. 가장 큰 낭비는 오래 도는 세션의 compact 직후 캐시 끊김이었고, 판단에 쓰는 모델과 verifier 검증은 그대로 두고 앞부분 크기와 세션 길이를 줄이도록 작업 방식을 고쳤다.
 
 ### 향후 확장 후보
 

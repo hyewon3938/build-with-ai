@@ -26,7 +26,7 @@ build-with-ai/                          ← git 원본 (이 repo)
 │   ├── scripts/{db-query,log-query,env-has}.mjs  ← 운영 DB·로그 조회, 환경 변수 유무 확인
 │   ├── scripts/{query-guard,query-pin}.mjs  ← 조회를 사용자가 터미널에서 고정한 폴더·접속 값으로 제한 (회귀 테스트 run-query-guard-tests.mjs)
 │   ├── scripts/queue-read.mjs  ← 대기열 파일에서 필요한 절·행·줄만 읽기 (회귀 테스트 run-queue-read-tests.mjs)
-│   ├── scripts/session-usage.mjs  ← 세션 기록에서 호출 수·캐시 끊김·도구 결과 크기·서브에이전트 토큰을 숫자로만 세기 (/build 마무리가 ~/.claude/usage-log.tsv에 한 줄씩 남김)
+│   ├── scripts/session-usage.mjs  ← 세션 기록에서 호출 수·캐시 끊김·도구 결과 크기·서브에이전트 토큰을 숫자로만 세기 (/build 마무리가 ~/.claude/usage-log.tsv에 한 줄씩 남김, 읽는 법은 workflow/token-usage.md)
 │   └── hooks/
 │       ├── hooks.json                  ← 플러그인 설치자용 훅 등록
 │       └── scripts/guard-*.mjs (+회귀 테스트)
