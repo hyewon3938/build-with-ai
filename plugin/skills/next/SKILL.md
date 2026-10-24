@@ -48,4 +48,4 @@ disable-model-invocation: true
 
 ### 5. 시작
 
-모델 확인을 통과했거나 사용자가 지금 모델로 계속하기로 하면, build SKILL.md의 1단계 맥락을 읽고 3단계부터 따른다. 대기열 상태는 3단계에서 진행 중으로 바뀐다. build의 references는 `<이 스킬 폴더>/../build/references/`에서 읽는다.
+모델 확인을 통과했거나 사용자가 지금 모델로 계속하기로 하면, build SKILL.md 2단계 끝의 시작 표시를 먼저 남긴 뒤 1단계 맥락을 읽고 3단계부터 따른다. build의 references는 `<이 스킬 폴더>/../build/references/`에서 읽는다.
