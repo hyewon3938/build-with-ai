@@ -22,6 +22,7 @@
 - [worktree-session-cleanup.md](workflow/worktree-session-cleanup.md) — worktree 안에서 도는 세션이 머지 뒤 정리를 사용자에게 넘기면 세션이 끝난 뒤 worktree가 하나씩 남는 문제. 막힌 원인이 세션의 위치에 있으면 worktree를 먼저 나오도록 순서를 바꾸고, 사람이 다시 요청해서 풀린 방법을 절차에 적는다.
 - [queue-based-session-flow.md](workflow/queue-based-session-flow.md) — 이슈마다 계획서 파일을 만들던 방식을 대기열 파일 하나로 바꾼 기록. 세션 사이의 순서, 여는 날짜, 배포 묶음, 배포 뒤 확인을 세션 행에 적고 `/design`부터 `/track`까지 스킬 5개가 같은 행을 이어받는 흐름과 9/14~9/19 실제 사용 사례.
 - [foundation-doc-first.md](workflow/foundation-doc-first.md) — 프로젝트가 무엇을 왜 만드는지를 근본 문서 한 곳에 적고, 세션마다 불러와 판단 기준 맨 앞에 두는 관리 방식. 방향에 번호를 붙여 결정마다 기댄 줄을 적고, 근본에 가까운 질문은 선택지 대신 열린 질문으로 묻는다. 기획 기록에는 줄마다 적용 범위를 적어 한 줄이 원칙처럼 쓰이지 않게 한다. 기획 페이지가 길어지면 정한 것만 모은 페이지를 따로 두고 확인은 채팅에서 한다.
+- [doc-status-and-feature-index.md](workflow/doc-status-and-feature-index.md) — 설계 문서가 수십 개로 늘어난 뒤 어느 문서가 지금 원본인지 읽기 전에 알리는 방법. 문서마다 맨 위에 상태 줄을 적고 색인은 그 줄에서 만들며, 낡은 문서와 절은 보관 폴더로 글자 그대로 옮긴다. 기능을 찾는 첫 문서는 변경 기록과 나눈 기능 색인으로 두고, 문서가 적은 코드 경로와 함수 이름이 실제로 있는지는 커밋 훅이 검사한다.
 - [token-usage.md](workflow/token-usage.md) — 세션 기록에서 호출 수와 캐시 끊김을 숫자로 세는 방법과, 7일 기록에서 찾은 낭비 지점. 가장 큰 낭비는 오래 도는 세션의 compact 직후 캐시 끊김이었고, 판단에 쓰는 모델과 verifier 검증은 그대로 두고 앞부분 크기와 세션 길이를 줄이도록 작업 방식을 고쳤다.
 - [version-cost-settlement.md](workflow/version-cost-settlement.md) — LLM 서비스의 API 비용을 버전마다 같은 틀로 결산하는 방법. 호출 기록 DB와 콘솔 청구 CSV를 모델과 토큰 종류별 실효 단가로 대조해 금액을 호출마다 나누고, 커밋하는 결산에는 토큰과 비율, 같은 단가로 계산한 지수만 남긴다. 리포트 목차와 버전 비교표를 고정하고 첫 결산에서 걸린 함정을 목록으로 모았다.
 
